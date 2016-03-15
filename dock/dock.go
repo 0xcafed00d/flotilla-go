@@ -1,12 +1,27 @@
 package dock
 
-import "io"
+import (
+	"bytes"
+	"io"
+)
 
-func messageSplitter() func(input []byte) []string {
+func makeMessageSplitter() func(input []byte) []string {
 	buffer := []byte{}
 
 	return func(input []byte) []string {
-		return nil
+		buffer = append(buffer, input...)
+		msgs := []string{}
+
+		for {
+			i := bytes.IndexByte(buffer, '\r')
+			if i == -1 {
+				break
+			}
+			msgs = append(msgs, string(buffer[:i]))
+			buffer = buffer[i+1:]
+		}
+
+		return msgs
 	}
 }
 
@@ -19,7 +34,7 @@ type Dock struct {
 }
 
 func ConnectDock(port io.ReadWriteCloser) *Dock {
-	return &FlotillaDock{
+	return &Dock{
 		port:   port,
 		Events: make(chan Event),
 	}
