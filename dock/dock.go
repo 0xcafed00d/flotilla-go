@@ -25,7 +25,19 @@ func makeMessageSplitter() func(input []byte) []string {
 	}
 }
 
+type EventType int
+
+const (
+	Conencted EventType = iota
+	Disconnected
+	Update
+)
+
 type Event struct {
+	EventType
+	ModuleType
+	Port   int
+	Params []int
 }
 
 type Dock struct {
@@ -38,4 +50,8 @@ func ConnectDock(port io.ReadWriteCloser) *Dock {
 		port:   port,
 		Events: make(chan Event),
 	}
+}
+
+func (d *Dock) SendCommand(port int, mtype ModuleType, params ...int) error {
+	return nil
 }
