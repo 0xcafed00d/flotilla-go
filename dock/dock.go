@@ -1,54 +1,40 @@
 package dock
 
-import (
-	"bytes"
-	"io"
-)
-
-func makeMessageSplitter() func(input []byte) []string {
-	buffer := []byte{}
-
-	return func(input []byte) []string {
-		buffer = append(buffer, input...)
-		msgs := []string{}
-
-		for {
-			i := bytes.IndexByte(buffer, '\r')
-			if i == -1 {
-				break
-			}
-			msgs = append(msgs, string(buffer[:i]))
-			buffer = buffer[i+1:]
-		}
-
-		return msgs
-	}
-}
-
-type EventType int
-
-const (
-	Conencted EventType = iota
-	Disconnected
-	Update
-)
-
-type Event struct {
-	EventType
-	ModuleType
-	Port   int
-	Params []int
-}
+import "io"
 
 type Dock struct {
-	port   io.ReadWriteCloser
-	Events <-chan Event
+	port   io.ReadWriter
+	Events chan Event
 }
 
-func ConnectDock(port io.ReadWriteCloser) *Dock {
-	return &Dock{
+func ConnectDock(port io.ReadWriter) *Dock {
+	dock := Dock{
 		port:   port,
 		Events: make(chan Event),
+	}
+
+	go dock.reader()
+
+	return &dock
+}
+
+func (d *Dock) reader() {
+	spliter := makeMessageSplitter()
+	buffer := make([]byte, 256)
+
+	for {
+		n, err := d.port.Read(buffer)
+		if n > 0 {
+			msgs := spliter(buffer[:n])
+			for _, msg := range msgs {
+				d.Events <- msgToEvent(msg)
+			}
+		}
+
+		if err != nil {
+			d.Events <- Event{EventType: Error, Error: err}
+			return
+		}
 	}
 }
 
