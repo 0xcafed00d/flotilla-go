@@ -3,8 +3,8 @@ package dock
 type ModuleType int
 
 const (
-	None              = -1
-	Slider ModuleType = iota
+	Unknown            = -1
+	Slider  ModuleType = iota
 	Touch
 	Motion
 	Light
@@ -40,7 +40,7 @@ func FromString(name string) ModuleType {
 	if m, ok := modules[name]; ok {
 		return m
 	}
-	return None
+	return Unknown
 }
 
 func (m ModuleType) String() string {
@@ -70,5 +70,5 @@ func (m ModuleType) String() string {
 	case Matrix:
 		return "matrix"
 	}
-	return "none"
+	return "unknown"
 }

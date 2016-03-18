@@ -5,6 +5,7 @@ import "fmt"
 type EventType int
 
 const (
+	Invalid             = -1
 	Connected EventType = iota
 	Disconnected
 	Update
