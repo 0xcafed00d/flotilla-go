@@ -53,7 +53,9 @@ func msgToEvent(msg string) Event {
 
 	event.ModuleType = FromString(module)
 	event.Port = port
-	event.Params = values[:n-3]
+	if n > 3 {
+		event.Params = values[:n-3]
+	}
 
 	return event
 }

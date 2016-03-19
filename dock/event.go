@@ -15,7 +15,7 @@ const (
 func (e EventType) String() string {
 	switch e {
 	case Connected:
-		return "Conencted"
+		return "Connected"
 	case Disconnected:
 		return "Disconnected"
 	case Update:
