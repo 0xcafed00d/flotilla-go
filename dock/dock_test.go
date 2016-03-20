@@ -41,6 +41,11 @@ func TestMsgParser(t *testing.T) {
 		Port:       1,
 	})
 
+	assert(msgToEvent("# this is a message")).Equal(Event{
+		EventType: Message,
+		Message:   "# this is a message",
+	})
+
 	assert(msgToEvent("u 1/xxxx 1,234,874")).Equal(Event{
 		EventType:  Update,
 		ModuleType: Unknown,

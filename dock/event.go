@@ -9,6 +9,7 @@ const (
 	Connected EventType = iota
 	Disconnected
 	Update
+	Message
 	Error
 )
 
@@ -20,6 +21,8 @@ func (e EventType) String() string {
 		return "Disconnected"
 	case Update:
 		return "Update"
+	case Message:
+		return "Message"
 	case Error:
 		return "Error"
 	}
@@ -29,14 +32,18 @@ func (e EventType) String() string {
 type Event struct {
 	EventType
 	ModuleType
-	Port   int
-	Params []int
-	Error  error
+	Port    int
+	Params  []int
+	Message string
+	Error   error
 }
 
 func (e Event) String() string {
 	if e.EventType == Error {
 		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Error)
+	}
+	if e.EventType == Message {
+		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Message)
 	}
 	return fmt.Sprintf("Event: [%v, %v, %v, %v]", e.EventType, e.ModuleType, e.Port, e.Params)
 }

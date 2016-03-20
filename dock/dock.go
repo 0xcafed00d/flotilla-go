@@ -38,6 +38,10 @@ func (d *Dock) reader() {
 	}
 }
 
-func (d *Dock) SendCommand(port int, mtype ModuleType, params ...int) error {
+func (d *Dock) SendDockCommand(command rune, params ...int) error {
+	return nil
+}
+
+func (d *Dock) SendModuleCommand(command rune, port int, mtype ModuleType, params ...int) error {
 	return nil
 }

@@ -37,25 +37,27 @@ func msgToEvent(msg string) Event {
 		&values[0], &values[1], &values[2], &values[3],
 		&values[4], &values[5], &values[6], &values[7])
 
-	//	fmt.Println(evtype, port, module, values, n, err)
-
-	event := Event{}
-	switch evtype {
-	case 'c':
-		event.EventType = Connected
-	case 'd':
-		event.EventType = Disconnected
-	case 'u':
-		event.EventType = Update
-	default:
-		event.EventType = Invalid
+	if evtype == '#' {
+		return Event{EventType: Message, Message: msg}
 	}
 
-	event.ModuleType = FromString(module)
-	event.Port = port
-	if n > 3 {
-		event.Params = values[:n-3]
-	}
+	event := Event{EventType: Invalid}
 
+	if n >= 3 {
+		switch evtype {
+		case 'c':
+			event.EventType = Connected
+		case 'd':
+			event.EventType = Disconnected
+		case 'u':
+			event.EventType = Update
+		}
+
+		event.ModuleType = FromString(module)
+		event.Port = port
+		if n > 3 {
+			event.Params = values[:n-3]
+		}
+	}
 	return event
 }
