@@ -61,3 +61,22 @@ func msgToEvent(msg string) Event {
 	}
 	return event
 }
+
+func Join(a []int, sep string) string {
+	if len(a) == 0 {
+		return ""
+	}
+	if len(a) == 1 {
+		return fmt.Sprint(a[0])
+	}
+
+	var b bytes.Buffer
+	for i, v := range a {
+		fmt.Fprint(&b, v)
+		if i < (len(a) - 1) {
+			fmt.Fprint(&b, sep)
+		}
+	}
+
+	return b.String()
+}

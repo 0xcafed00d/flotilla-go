@@ -1,6 +1,9 @@
 package dock
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type Dock struct {
 	port   io.ReadWriter
@@ -39,9 +42,16 @@ func (d *Dock) reader() {
 }
 
 func (d *Dock) SendDockCommand(command rune, params ...int) error {
-	return nil
+
+	if len(params) == 0 {
+		_, err := fmt.Fprintf(d.port, "%c\r", command)
+		return err
+	}
+	_, err := fmt.Fprintf(d.port, "%c %s\r", command, Join(params, ","))
+	return err
 }
 
-func (d *Dock) SendModuleCommand(command rune, port int, mtype ModuleType, params ...int) error {
-	return nil
+func (d *Dock) SetModuleData(port int, mtype ModuleType, params ...int) error {
+	_, err := fmt.Fprintf(d.port, "s %d %s\r", port, Join(params, ","))
+	return err
 }

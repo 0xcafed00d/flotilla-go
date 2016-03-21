@@ -1,6 +1,7 @@
 package dock
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -8,6 +9,16 @@ import (
 
 	"github.com/simulatedsimian/assert"
 )
+
+func TestJoin(t *testing.T) {
+	assert := assert.Make(t)
+
+	assert(Join([]int{}, ",")).Equal("")
+	assert(Join([]int{1}, ",")).Equal("1")
+	assert(Join([]int{1, 2}, ",")).Equal("1,2")
+	assert(Join([]int{1, 2, 3}, ",")).Equal("1,2,3")
+	assert(Join([]int{1, 2, 3, 4}, ", ")).Equal("1, 2, 3, 4")
+}
 
 func TestMsgSplitter(t *testing.T) {
 	assert := assert.Make(t)
@@ -61,14 +72,14 @@ func TestMsgParser(t *testing.T) {
 	})
 }
 
-type Source struct {
+type RW struct {
 	io.Reader
 	io.Writer
 }
 
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
-	s := Source{strings.NewReader("c 1/joystick\ru 1/joystick 1,234,874\rd 1/joystick\r"), ioutil.Discard}
+	s := RW{strings.NewReader("c 1/joystick\ru 1/joystick 1,234,874\rd 1/joystick\r"), ioutil.Discard}
 	d := ConnectDock(s)
 
 	assert(<-d.Events).Equal(Event{
@@ -94,4 +105,22 @@ func TestMsgRec(t *testing.T) {
 		EventType: Error,
 		Error:     io.EOF,
 	})
+}
+
+func TestMsgSend(t *testing.T) {
+	assert := assert.Make(t)
+
+	var out bytes.Buffer
+
+	s := RW{strings.NewReader("c 1/joystick\ru 1/joystick 1,234,874\rd 1/joystick\r"), &out}
+	d := ConnectDock(s)
+
+	assert(d.SendDockCommand('e')).NoError()
+	assert(d.SendDockCommand('p', 1)).NoError()
+
+	assert(out.String()).Equal("e\rp 1\r")
+
+	out.Reset()
+	assert(d.SetModuleData(1, Rainbow, 255, 255, 255)).NoError()
+	assert(out.String()).Equal("s 1 255,255,255\r")
 }
