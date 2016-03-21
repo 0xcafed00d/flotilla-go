@@ -47,11 +47,11 @@ func (d *Dock) SendDockCommand(command rune, params ...int) error {
 		_, err := fmt.Fprintf(d.port, "%c\r", command)
 		return err
 	}
-	_, err := fmt.Fprintf(d.port, "%c %s\r", command, Join(params, ","))
+	_, err := fmt.Fprintf(d.port, "%c %s\r", command, join(params, ","))
 	return err
 }
 
 func (d *Dock) SetModuleData(port int, mtype ModuleType, params ...int) error {
-	_, err := fmt.Fprintf(d.port, "s %d %s\r", port, Join(params, ","))
+	_, err := fmt.Fprintf(d.port, "s %d %s\r", port, join(params, ","))
 	return err
 }

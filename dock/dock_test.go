@@ -13,11 +13,11 @@ import (
 func TestJoin(t *testing.T) {
 	assert := assert.Make(t)
 
-	assert(Join([]int{}, ",")).Equal("")
-	assert(Join([]int{1}, ",")).Equal("1")
-	assert(Join([]int{1, 2}, ",")).Equal("1,2")
-	assert(Join([]int{1, 2, 3}, ",")).Equal("1,2,3")
-	assert(Join([]int{1, 2, 3, 4}, ", ")).Equal("1, 2, 3, 4")
+	assert(join([]int{}, ",")).Equal("")
+	assert(join([]int{1}, ",")).Equal("1")
+	assert(join([]int{1, 2}, ",")).Equal("1,2")
+	assert(join([]int{1, 2, 3}, ",")).Equal("1,2,3")
+	assert(join([]int{1, 2, 3, 4}, ", ")).Equal("1, 2, 3, 4")
 }
 
 func TestMsgSplitter(t *testing.T) {

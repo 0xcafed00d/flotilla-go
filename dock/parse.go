@@ -9,6 +9,10 @@ func makeMessageSplitter() func(input []byte) []string {
 	buffer := []byte{}
 
 	return func(input []byte) []string {
+		if len(buffer) > 0 && buffer[0] == '\n' {
+			buffer = buffer[1:]
+		}
+
 		buffer = append(buffer, input...)
 		msgs := []string{}
 
@@ -19,6 +23,10 @@ func makeMessageSplitter() func(input []byte) []string {
 			}
 			msgs = append(msgs, string(buffer[:i]))
 			buffer = buffer[i+1:]
+			// skip past any \n that after the \r
+			if len(buffer) > 0 && buffer[0] == '\n' {
+				buffer = buffer[1:]
+			}
 		}
 
 		return msgs
@@ -62,7 +70,7 @@ func msgToEvent(msg string) Event {
 	return event
 }
 
-func Join(a []int, sep string) string {
+func join(a []int, sep string) string {
 	if len(a) == 0 {
 		return ""
 	}
