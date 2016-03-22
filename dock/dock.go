@@ -37,6 +37,7 @@ func (d *Dock) handleEvent(ev Event) {
 		d.moduleTypes[ev.Port] = ev.ModuleType
 		d.RWMutex.Unlock()
 	}
+
 	d.Events <- ev
 }
 

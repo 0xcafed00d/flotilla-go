@@ -79,6 +79,7 @@ type RW struct {
 
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
+
 	s := RW{strings.NewReader("c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), ioutil.Discard}
 	d := ConnectDock(s)
 
@@ -105,6 +106,24 @@ func TestMsgRec(t *testing.T) {
 		EventType: Error,
 		Error:     io.EOF,
 	})
+}
+
+func TestMsgModuleType(t *testing.T) {
+	assert := assert.Make(t)
+
+	s := RW{strings.NewReader("c 1/joystick\r\n"), ioutil.Discard}
+	d := ConnectDock(s)
+
+	<-d.Events
+	assert(d.GetModuleType(2)).Equal(Unknown)
+	assert(d.GetModuleType(1)).Equal(Joystick)
+
+	s = RW{strings.NewReader("c 1/joystick\r\nd 1/joystick\r\n"), ioutil.Discard}
+	d = ConnectDock(s)
+
+	<-d.Events
+	<-d.Events
+	assert(d.GetModuleType(1)).Equal(Unknown)
 }
 
 func TestMsgSend(t *testing.T) {
