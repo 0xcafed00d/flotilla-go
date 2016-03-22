@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/simulatedsimian/flotilla/dock"
 	"github.com/tarm/serial"
@@ -20,10 +21,15 @@ func main() {
 
 	serialcfg := serial.Config{Name: "/dev/ttyACM0", Baud: 9600}
 	port, err := serial.OpenPort(&serialcfg)
+
 	exitOnError(err)
 
 	log.Println("connecting to dock")
 	d := dock.ConnectDock(port)
+
+	time.Sleep(100 * time.Millisecond)
+	d.SendDockCommand('v')
+	time.Sleep(100 * time.Millisecond)
 	d.SendDockCommand('e')
 
 	for {

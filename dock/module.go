@@ -3,8 +3,8 @@ package dock
 type ModuleType int
 
 const (
-	Unknown            = -1
-	Slider  ModuleType = iota
+	Unknown ModuleType = iota
+	Slider
 	Touch
 	Motion
 	Light
