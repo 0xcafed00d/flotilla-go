@@ -80,8 +80,13 @@ type RW struct {
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
 
-	s := RW{strings.NewReader("c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), ioutil.Discard}
+	s := RW{strings.NewReader("# message\r\nc 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), ioutil.Discard}
 	d := ConnectDock(s)
+
+	assert(<-d.Events).Equal(Event{
+		EventType: Message,
+		Message:   "# message",
+	})
 
 	assert(<-d.Events).Equal(Event{
 		EventType:  Connected,
