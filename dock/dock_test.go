@@ -25,9 +25,9 @@ func TestMsgSplitter(t *testing.T) {
 
 	msgSplit := makeMessageSplitter()
 
-	assert(msgSplit([]byte("msg1\rmsg2\r"))).Equal([]string{"msg1", "msg2"})
-	assert(msgSplit([]byte("msg3\rmsg"))).Equal([]string{"msg3"})
-	assert(msgSplit([]byte("4\r"))).Equal([]string{"msg4"})
+	assert(msgSplit([]byte("msg1\r\nmsg2\r\n"))).Equal([]string{"msg1", "msg2"})
+	assert(msgSplit([]byte("msg3\r\nmsg"))).Equal([]string{"msg3"})
+	assert(msgSplit([]byte("4\r\n"))).Equal([]string{"msg4"})
 }
 
 func TestMsgParser(t *testing.T) {
@@ -79,7 +79,7 @@ type RW struct {
 
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
-	s := RW{strings.NewReader("c 1/joystick\ru 1/joystick 1,234,874\rd 1/joystick\r"), ioutil.Discard}
+	s := RW{strings.NewReader("c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), ioutil.Discard}
 	d := ConnectDock(s)
 
 	assert(<-d.Events).Equal(Event{
@@ -112,7 +112,7 @@ func TestMsgSend(t *testing.T) {
 
 	var out bytes.Buffer
 
-	s := RW{strings.NewReader("c 1/joystick\ru 1/joystick 1,234,874\rd 1/joystick\r"), &out}
+	s := RW{strings.NewReader("c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), &out}
 	d := ConnectDock(s)
 
 	assert(d.SendDockCommand('e')).NoError()

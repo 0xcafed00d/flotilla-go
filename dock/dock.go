@@ -13,7 +13,7 @@ type Dock struct {
 func ConnectDock(port io.ReadWriter) *Dock {
 	dock := Dock{
 		port:   port,
-		Events: make(chan Event),
+		Events: make(chan Event, 128),
 	}
 
 	go dock.reader()
@@ -23,7 +23,7 @@ func ConnectDock(port io.ReadWriter) *Dock {
 
 func (d *Dock) reader() {
 	spliter := makeMessageSplitter()
-	buffer := make([]byte, 256)
+	buffer := make([]byte, 512)
 
 	for {
 		n, err := d.port.Read(buffer)

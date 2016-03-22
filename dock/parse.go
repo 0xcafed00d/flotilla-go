@@ -7,26 +7,19 @@ import (
 
 func makeMessageSplitter() func(input []byte) []string {
 	buffer := []byte{}
+	crlf := []byte{0x0d, 0x0a}
 
 	return func(input []byte) []string {
-		if len(buffer) > 0 && buffer[0] == '\n' {
-			buffer = buffer[1:]
-		}
-
 		buffer = append(buffer, input...)
 		msgs := []string{}
 
 		for {
-			i := bytes.IndexByte(buffer, '\r')
+			i := bytes.Index(buffer, crlf)
 			if i == -1 {
 				break
 			}
 			msgs = append(msgs, string(buffer[:i]))
-			buffer = buffer[i+1:]
-			// skip past any \n that after the \r
-			if len(buffer) > 0 && buffer[0] == '\n' {
-				buffer = buffer[1:]
-			}
+			buffer = buffer[i+2:]
 		}
 
 		return msgs

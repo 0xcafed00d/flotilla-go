@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/simulatedsimian/flotilla/dock"
@@ -17,10 +18,11 @@ func exitOnError(err error) {
 
 func main() {
 
-	serialcfg := serial.Config{Name: "/dev/ttyACM0", Baud: 115200}
+	serialcfg := serial.Config{Name: "/dev/ttyACM0", Baud: 9600}
 	port, err := serial.OpenPort(&serialcfg)
 	exitOnError(err)
 
+	log.Println("connecting to dock")
 	d := dock.ConnectDock(port)
 	d.SendDockCommand('e')
 
@@ -28,10 +30,5 @@ func main() {
 		ev := <-d.Events
 		fmt.Println(ev)
 		exitOnError(ev.Error)
-
-		if ev.EventType == dock.Update {
-			d.SetModuleData(1, dock.Matrix, 1, 2, 3, 4, 5, 6, 7, 8, ev.Params[0]>>4)
-		}
-
 	}
 }
