@@ -73,10 +73,11 @@ func validateParams(mtype ModuleType, params []int) error {
 		return fmt.Errorf("Module: %v invalid param count (%v) expecting %v", mtype, len(params), info.paramCounts)
 	}
 
-	for i, lim := range info.paramLimits {
-		if params[i] < lim.minval || params[i] > lim.maxval {
+	for i, param := range params {
+		lim := info.paramLimits[i]
+		if param < lim.minval || param > lim.maxval {
 			return fmt.Errorf("Module: %v param %v (%v) out of range of: (%v)",
-				mtype, i, params[i], lim)
+				mtype, i, params, lim)
 		}
 	}
 

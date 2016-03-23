@@ -20,6 +20,23 @@ func TestJoin(t *testing.T) {
 	assert(join([]int{1, 2, 3, 4}, ", ")).Equal("1, 2, 3, 4")
 }
 
+func TestValidation(t *testing.T) {
+	assert := assert.Make(t)
+
+	assert(validateParams(Dial, []int{1, 2, 3, 4})).HasError()
+	assert(validateParams(Motor, []int{1})).NoError()
+
+	assert(validateParams(Motor, []int{})).HasError()
+	assert(validateParams(Motor, []int{1, 2})).HasError()
+
+	assert(validateParams(Motor, []int{-64})).HasError()
+	assert(validateParams(Motor, []int{64})).HasError()
+
+	assert(validateParams(Number, []int{255, 255, 255, 255})).NoError()
+	assert(validateParams(Number, []int{255, 255, 255, 255, 1})).NoError()
+	assert(validateParams(Number, []int{255, 255, 255, 255, 1, 1})).NoError()
+}
+
 func TestMsgSplitter(t *testing.T) {
 	assert := assert.Make(t)
 
@@ -146,5 +163,6 @@ func TestMsgSend(t *testing.T) {
 
 	out.Reset()
 	assert(d.SetModuleData(1, Rainbow, 255, 255, 255)).NoError()
+	assert(d.SetModuleData(1, Rainbow, 255, 255, 255, 1)).HasError()
 	assert(out.String()).Equal("s 1 255,255,255\r")
 }
