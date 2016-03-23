@@ -72,7 +72,11 @@ func (d *Dock) SendDockCommand(command rune, params ...int) error {
 }
 
 func (d *Dock) SetModuleData(port int, mtype ModuleType, params ...int) error {
-	_, err := fmt.Fprintf(d.port, "s %d %s\r", port, join(params, ","))
+	err := validateParams(mtype, params)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(d.port, "s %d %s\r", port, join(params, ","))
 	return err
 }
 
