@@ -4,6 +4,7 @@ type ModuleType int
 
 const (
 	Unknown ModuleType = iota
+	Joystick
 	Slider
 	Touch
 	Motion
@@ -14,7 +15,6 @@ const (
 	Number
 	Motor
 	Rainbow
-	Joystick
 	Matrix
 )
 
