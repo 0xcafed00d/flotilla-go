@@ -17,30 +17,6 @@ func exitOnError(err error) {
 	}
 }
 
-const (
-	DecPnt = 1
-	HMid   = 2
-	VLTop  = 4
-	VLBot  = 8
-	HBot   = 16
-	VRBot  = 32
-	VRTop  = 64
-	HTop   = 128
-)
-
-var Digits = []int{
-	HTop | HBot | VLBot | VLTop | VRBot | VRTop,
-	VRBot | VRTop,
-	HTop | HBot | HMid | VLBot | VRTop,
-	HTop | HBot | HMid | VRBot | VRTop,
-	HMid | VRTop | VRTop | VLTop | VRBot,
-	HTop | HBot | HMid | VRBot | VLTop,
-	HTop | HBot | HMid | VRBot | VLTop | VLBot,
-	HTop | VRBot | VRTop | VRBot,
-	HTop | HMid | HBot | VLBot | VLTop | VRBot | VRTop,
-	HTop | HMid | HBot | VLTop | VRBot | VRTop,
-}
-
 func main() {
 
 	serialcfg := serial.Config{Name: "/dev/ttyACM0", Baud: 9600}
@@ -80,8 +56,10 @@ func main() {
 				second := now.Second()
 
 				err := d.SetModuleData(numberIdx, dock.Number,
-					Digits[hour/10], Digits[hour%10],
-					Digits[minute/10], Digits[minute%10],
+					dock.GetDigitPattern(hour/10, false),
+					dock.GetDigitPattern(hour%10, false),
+					dock.GetDigitPattern(minute/10, false),
+					dock.GetDigitPattern(minute%10, false),
 					second%2)
 
 				exitOnError(err)
