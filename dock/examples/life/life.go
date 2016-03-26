@@ -125,6 +125,9 @@ func main() {
 	d.SendDockCommand('e')
 
 	matrixIdx := -1
+	numberIdx := -1
+
+	gen := 0
 
 	for {
 		select {
@@ -137,14 +140,26 @@ func main() {
 					matrixIdx = -1
 				}
 			}
+
+			if ev.ModuleType == dock.Number {
+				if ev.EventType == dock.Connected {
+					numberIdx = ev.Port
+				}
+				if ev.EventType == dock.Disconnected {
+					numberIdx = -1
+				}
+			}
+
 			if ev.ModuleType == dock.Touch && ev.EventType == dock.Update {
 				if ev.Params[0] == 1 {
 					board.randomPopulation(rng)
 					board.writeBoard(matrixIdx, d)
+					gen = 0
 				}
 				if ev.Params[1] == 1 {
 					board.makeGlider()
 					board.writeBoard(matrixIdx, d)
+					gen = 0
 				}
 			}
 
@@ -153,9 +168,19 @@ func main() {
 
 		case <-time.After(100 * time.Millisecond):
 			if matrixIdx != -1 {
+				if numberIdx != -1 {
+					err := d.SetModuleData(numberIdx, dock.Number,
+						dock.GetDigitPattern((gen/1000)%10, false),
+						dock.GetDigitPattern((gen/100)%10, false),
+						dock.GetDigitPattern((gen/10)%10, false),
+						dock.GetDigitPattern(gen%10, false))
+					exitOnError(err)
+				}
+
 				err := board.writeBoard(matrixIdx, d)
 				exitOnError(err)
 				board.generation()
+				gen++
 			}
 		}
 	}
