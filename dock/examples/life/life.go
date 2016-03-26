@@ -25,7 +25,7 @@ func (l *LifeBoard) Set(x, y, v int) {
 	y = y & 7
 
 	if v == 0 {
-		l[x] = l[x] & (0xfe << uint(y))
+		l[x] = l[x] & ^(1 << uint(y))
 	} else {
 		l[x] = l[x] | (1 << uint(y))
 	}
@@ -35,7 +35,7 @@ func (l *LifeBoard) Get(x, y int) int {
 	x = x & 7
 	y = y & 7
 
-	if l[x]>>uint(y)&1 != 0 {
+	if l[x]&(1<<uint(y)) != 0 {
 		return 1
 	}
 	return 0
@@ -43,7 +43,7 @@ func (l *LifeBoard) Get(x, y int) int {
 
 func (l *LifeBoard) writeBoard(port int, d *dock.Dock) error {
 	return d.SetModuleData(port, dock.Matrix, int(l[0]), int(l[1]), int(l[2]), int(l[3]),
-		int(l[4]), int(l[5]), int(l[6]), int(l[7]), 128)
+		int(l[4]), int(l[5]), int(l[6]), int(l[7]), 32)
 }
 
 func (l *LifeBoard) randomPopulation(rng *rand.Rand) {
@@ -52,13 +52,44 @@ func (l *LifeBoard) randomPopulation(rng *rand.Rand) {
 	}
 }
 
+func (l *LifeBoard) clear() {
+	for i := range l {
+		l[i] = 0
+	}
+}
+
+func (l *LifeBoard) fill() {
+	for i := range l {
+		l[i] = 255
+	}
+}
+
+func (l *LifeBoard) makeGlider() {
+	l.clear()
+	l.Set(3, 3, 1)
+	l.Set(4, 4, 1)
+	l.Set(4, 5, 1)
+	l.Set(3, 5, 1)
+	l.Set(2, 5, 1)
+}
+
+func (l *LifeBoard) countNeighbours(xx, yy int) int {
+	cnt := 0
+	for y := -1; y <= 1; y++ {
+		for x := -1; x <= 1; x++ {
+			if x != 0 || y != 0 {
+				cnt += l.Get(x+xx, y+yy)
+			}
+		}
+	}
+	return cnt
+}
+
 func (l *LifeBoard) generation() {
 	var dest LifeBoard
 	for y := 0; y < 8; y++ {
 		for x := 0; x < 8; x++ {
-			cnt := l.Get(x+1, y+1) + l.Get(x, y+1) + l.Get(x-1, y+1) +
-				l.Get(x+1, y-1) + l.Get(x, y-1) + l.Get(x-1, y-1) +
-				l.Get(x+1, y) + l.Get(x-1, y)
+			cnt := l.countNeighbours(x, y)
 
 			if l.Get(x, y) == 1 {
 				if cnt < 2 || cnt > 3 {
@@ -109,13 +140,18 @@ func main() {
 			if ev.ModuleType == dock.Touch && ev.EventType == dock.Update {
 				if ev.Params[0] == 1 {
 					board.randomPopulation(rng)
+					board.writeBoard(matrixIdx, d)
+				}
+				if ev.Params[1] == 1 {
+					board.makeGlider()
+					board.writeBoard(matrixIdx, d)
 				}
 			}
 
 			fmt.Println(ev)
 			exitOnError(ev.Error)
 
-		case <-time.After(50 * time.Millisecond):
+		case <-time.After(100 * time.Millisecond):
 			if matrixIdx != -1 {
 				err := board.writeBoard(matrixIdx, d)
 				exitOnError(err)
