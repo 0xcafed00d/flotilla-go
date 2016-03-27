@@ -18,93 +18,28 @@ func exitOnError(err error) {
 	}
 }
 
-type LifeBoard [8]byte
-
-func (l *LifeBoard) Set(x, y, v int) {
-	x = x & 7
-	y = y & 7
-
-	if v == 0 {
-		l[x] = l[x] & ^(1 << uint(y))
-	} else {
-		l[x] = l[x] | (1 << uint(y))
-	}
+type Module struct {
+	dock.ModuleType
+	port int
 }
 
-func (l *LifeBoard) Get(x, y int) int {
-	x = x & 7
-	y = y & 7
-
-	if l[x]&(1<<uint(y)) != 0 {
-		return 1
-	}
-	return 0
-}
-
-func (l *LifeBoard) writeBoard(port int, d *dock.Dock) error {
-	return d.SetModuleData(port, dock.Matrix, int(l[0]), int(l[1]), int(l[2]), int(l[3]),
-		int(l[4]), int(l[5]), int(l[6]), int(l[7]), 32)
-}
-
-func (l *LifeBoard) randomPopulation(rng *rand.Rand) {
-	for i := range l {
-		l[i] = byte(rng.Uint32())
-	}
-}
-
-func (l *LifeBoard) clear() {
-	for i := range l {
-		l[i] = 0
-	}
-}
-
-func (l *LifeBoard) fill() {
-	for i := range l {
-		l[i] = 255
-	}
-}
-
-func (l *LifeBoard) makeGlider() {
-	l.clear()
-	l.Set(3, 3, 1)
-	l.Set(4, 4, 1)
-	l.Set(4, 5, 1)
-	l.Set(3, 5, 1)
-	l.Set(2, 5, 1)
-}
-
-func (l *LifeBoard) countNeighbours(xx, yy int) int {
-	cnt := 0
-	for y := -1; y <= 1; y++ {
-		for x := -1; x <= 1; x++ {
-			if x != 0 || y != 0 {
-				cnt += l.Get(x+xx, y+yy)
-			}
+func (m *Module) ProcessEvent(ev dock.Event) {
+	if ev.ModuleType == m.ModuleType {
+		if ev.EventType == dock.Connected {
+			m.port = ev.Port
+		}
+		if ev.EventType == dock.Disconnected {
+			m.port = -1
 		}
 	}
-	return cnt
 }
 
-func (l *LifeBoard) generation() {
-	var dest LifeBoard
-	for y := 0; y < 8; y++ {
-		for x := 0; x < 8; x++ {
-			cnt := l.countNeighbours(x, y)
+func (m *Module) Connected() bool {
+	return m.port != -1
+}
 
-			if l.Get(x, y) == 1 {
-				if cnt < 2 || cnt > 3 {
-					dest.Set(x, y, 0)
-				} else {
-					dest.Set(x, y, 1)
-				}
-			} else {
-				if cnt == 3 {
-					dest.Set(x, y, 1)
-				}
-			}
-		}
-	}
-	*l = dest
+func (m *Module) Port() int {
+	return m.port
 }
 
 func main() {
@@ -124,41 +59,26 @@ func main() {
 	time.Sleep(200 * time.Millisecond)
 	d.SendDockCommand('e')
 
-	matrixIdx := -1
-	numberIdx := -1
+	matrixModule := Module{ModuleType: dock.Matrix}
+	numberModule := Module{ModuleType: dock.Number}
 
 	gen := 0
 
 	for {
 		select {
 		case ev := <-d.Events:
-			if ev.ModuleType == dock.Matrix {
-				if ev.EventType == dock.Connected {
-					matrixIdx = ev.Port
-				}
-				if ev.EventType == dock.Disconnected {
-					matrixIdx = -1
-				}
-			}
-
-			if ev.ModuleType == dock.Number {
-				if ev.EventType == dock.Connected {
-					numberIdx = ev.Port
-				}
-				if ev.EventType == dock.Disconnected {
-					numberIdx = -1
-				}
-			}
+			matrixModule.ProcessEvent(ev)
+			numberModule.ProcessEvent(ev)
 
 			if ev.ModuleType == dock.Touch && ev.EventType == dock.Update {
 				if ev.Params[0] == 1 {
 					board.randomPopulation(rng)
-					board.writeBoard(matrixIdx, d)
+					board.writeBoard(matrixModule.Port(), d)
 					gen = 0
 				}
 				if ev.Params[1] == 1 {
 					board.makeGlider()
-					board.writeBoard(matrixIdx, d)
+					board.writeBoard(matrixModule.Port(), d)
 					gen = 0
 				}
 			}
@@ -167,9 +87,9 @@ func main() {
 			exitOnError(ev.Error)
 
 		case <-time.After(100 * time.Millisecond):
-			if matrixIdx != -1 {
-				if numberIdx != -1 {
-					err := d.SetModuleData(numberIdx, dock.Number,
+			if matrixModule.Connected() {
+				if numberModule.Connected() {
+					err := d.SetModuleData(numberModule.Port(), dock.Number,
 						dock.GetDigitPattern((gen/1000)%10, false),
 						dock.GetDigitPattern((gen/100)%10, false),
 						dock.GetDigitPattern((gen/10)%10, false),
@@ -177,7 +97,7 @@ func main() {
 					exitOnError(err)
 				}
 
-				err := board.writeBoard(matrixIdx, d)
+				err := board.writeBoard(matrixModule.Port(), d)
 				exitOnError(err)
 				board.generation()
 				gen++
