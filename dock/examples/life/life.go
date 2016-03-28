@@ -18,30 +18,6 @@ func exitOnError(err error) {
 	}
 }
 
-type Module struct {
-	dock.ModuleType
-	port int
-}
-
-func (m *Module) ProcessEvent(ev dock.Event) {
-	if ev.ModuleType == m.ModuleType {
-		if ev.EventType == dock.Connected {
-			m.port = ev.Port
-		}
-		if ev.EventType == dock.Disconnected {
-			m.port = -1
-		}
-	}
-}
-
-func (m *Module) Connected() bool {
-	return m.port != -1
-}
-
-func (m *Module) Port() int {
-	return m.port
-}
-
 func main() {
 	var board LifeBoard
 
@@ -59,8 +35,8 @@ func main() {
 	time.Sleep(200 * time.Millisecond)
 	d.SendDockCommand('e')
 
-	matrixModule := Module{ModuleType: dock.Matrix}
-	numberModule := Module{ModuleType: dock.Number}
+	matrixModule := dock.Module{ModuleType: dock.Matrix}
+	numberModule := dock.Module{ModuleType: dock.Number}
 
 	gen := 0
 

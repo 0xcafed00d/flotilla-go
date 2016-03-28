@@ -72,3 +72,27 @@ func (m ModuleType) String() string {
 	}
 	return "unknown"
 }
+
+type Module struct {
+	ModuleType
+	port int
+}
+
+func (m *Module) ProcessEvent(ev Event) {
+	if ev.ModuleType == m.ModuleType {
+		if ev.EventType == Connected {
+			m.port = ev.Port
+		}
+		if ev.EventType == Disconnected {
+			m.port = -1
+		}
+	}
+}
+
+func (m *Module) Connected() bool {
+	return m.port != -1
+}
+
+func (m *Module) Port() int {
+	return m.port
+}
