@@ -30,32 +30,24 @@ func main() {
 	time.Sleep(200 * time.Millisecond)
 	d.SendDockCommand('e')
 
-	numberIdx := -1
+	numberModule := dock.Module{ModuleType: dock.Number, Dock: d}
 
 	for {
 		select {
 		case ev := <-d.Events:
-			if ev.ModuleType == dock.Number {
-				if ev.EventType == dock.Connected {
-					numberIdx = ev.Port
-				}
-				if ev.EventType == dock.Disconnected {
-					numberIdx = -1
-				}
-			}
-
+			numberModule.ProcessEvent(ev)
 			fmt.Println(ev)
 			exitOnError(ev.Error)
 
 		case <-time.After(500 * time.Millisecond):
 
-			if numberIdx != -1 {
+			if numberModule.Connected() {
 				now := time.Now()
 				hour := now.Hour()
 				minute := now.Minute()
 				second := now.Second()
 
-				err := d.SetModuleData(numberIdx, dock.Number,
+				err := numberModule.Set(
 					dock.GetDigitPattern(hour/10, false),
 					dock.GetDigitPattern(hour%10, false),
 					dock.GetDigitPattern(minute/10, false),

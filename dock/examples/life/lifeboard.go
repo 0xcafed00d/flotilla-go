@@ -29,8 +29,8 @@ func (l *LifeBoard) Get(x, y int) int {
 	return 0
 }
 
-func (l *LifeBoard) writeBoard(port int, d *dock.Dock) error {
-	return d.SetModuleData(port, dock.Matrix, int(l[0]), int(l[1]), int(l[2]), int(l[3]),
+func (l *LifeBoard) writeBoard(matrix *dock.Module) error {
+	return matrix.Set(int(l[0]), int(l[1]), int(l[2]), int(l[3]),
 		int(l[4]), int(l[5]), int(l[6]), int(l[7]), 32)
 }
 

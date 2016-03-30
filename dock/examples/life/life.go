@@ -35,8 +35,8 @@ func main() {
 	time.Sleep(200 * time.Millisecond)
 	d.SendDockCommand('e')
 
-	matrixModule := dock.Module{ModuleType: dock.Matrix}
-	numberModule := dock.Module{ModuleType: dock.Number}
+	matrixModule := dock.Module{ModuleType: dock.Matrix, Dock: d}
+	numberModule := dock.Module{ModuleType: dock.Number, Dock: d}
 
 	gen := 0
 
@@ -49,12 +49,12 @@ func main() {
 			if ev.ModuleType == dock.Touch && ev.EventType == dock.Update {
 				if ev.Params[0] == 1 {
 					board.randomPopulation(rng)
-					board.writeBoard(matrixModule.Port(), d)
+					board.writeBoard(&matrixModule)
 					gen = 0
 				}
 				if ev.Params[1] == 1 {
 					board.makeGlider()
-					board.writeBoard(matrixModule.Port(), d)
+					board.writeBoard(&matrixModule)
 					gen = 0
 				}
 			}
@@ -65,7 +65,7 @@ func main() {
 		case <-time.After(100 * time.Millisecond):
 			if matrixModule.Connected() {
 				if numberModule.Connected() {
-					err := d.SetModuleData(numberModule.Port(), dock.Number,
+					err := numberModule.Set(
 						dock.GetDigitPattern((gen/1000)%10, false),
 						dock.GetDigitPattern((gen/100)%10, false),
 						dock.GetDigitPattern((gen/10)%10, false),
@@ -73,7 +73,7 @@ func main() {
 					exitOnError(err)
 				}
 
-				err := board.writeBoard(matrixModule.Port(), d)
+				err := board.writeBoard(&matrixModule)
 				exitOnError(err)
 				board.generation()
 				gen++

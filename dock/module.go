@@ -75,6 +75,7 @@ func (m ModuleType) String() string {
 
 type Module struct {
 	ModuleType
+	*Dock
 	port int
 }
 
@@ -95,4 +96,8 @@ func (m *Module) Connected() bool {
 
 func (m *Module) Port() int {
 	return m.port
+}
+
+func (m *Module) Set(params ...int) error {
+	return m.Dock.SetModuleData(m.port, m.ModuleType, params...)
 }
