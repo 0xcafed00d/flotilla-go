@@ -20,6 +20,22 @@ type Client struct {
 	eventChan chan Event
 }
 
+func (c *Client) AquireModules(modules interface{}) {
+
+}
+
+func (c *Client) Run() error {
+
+	for {
+		ev := <-c.eventChan
+		if ev.EventType == dock.Error {
+			return ev.Error
+		}
+	}
+
+	return nil
+}
+
 func (c *Client) Close() {
 	for _, p := range c.ports {
 		p.Close()
