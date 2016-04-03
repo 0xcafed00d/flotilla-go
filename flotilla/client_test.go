@@ -6,10 +6,16 @@ import (
 	"github.com/simulatedsimian/assert"
 )
 
-type 
+type RequiredModules struct {
+    Matrix,
+    Touch,
+    Number,
+    Dial,            
+}
 
 func TestAquire(t *testing.T) {
 	assert := assert.Make(t)
+    
     
     
 
