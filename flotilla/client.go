@@ -54,16 +54,31 @@ func ConnectToDock(serialport string) (*Client, error) {
 }
 
 func ConnectToDocks(serialports ...string) (*Client, error) {
-	client := makeClient()
-	for i, s := range serialports {
+	if len(serialports) == 0 {
+		return nil, fmt.Errorf("ConnectToDocks: No Serial Ports supplied")
+	}
 
+	ports := []io.ReadWriteCloser{}
+
+	for i, s := range serialports {
 		serialcfg := serial.Config{Name: s, Baud: 115200}
 		port, err := serial.OpenPort(&serialcfg)
 		if err != nil {
-			client.Close()
+			for _, p := range ports {
+				p.Close()
+			}
 			return nil, fmt.Errorf("Failed to connect to Dock %d (%s): %v", i, s, err)
 		}
+		ports = append(ports, port)
+	}
 
+	return ConnectToDocksRaw(ports...)
+}
+
+func ConnectToDocksRaw(ports ...io.ReadWriteCloser) (*Client, error) {
+	client := makeClient()
+
+	for _, port := range ports {
 		client.ports = append(client.ports, port)
 		client.docks = append(client.docks, dock.ConnectDock(port))
 	}
