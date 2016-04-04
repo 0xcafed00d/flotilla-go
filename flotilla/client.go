@@ -86,9 +86,9 @@ func ConnectToDocksRaw(ports ...io.ReadWriteCloser) (*Client, error) {
 	// create a go routine for each dock that reads the event and gives it to the
 	// common client event chan along with source dock index
 	for i, d := range client.docks {
-		go func(d *dock.Dock, index int) {
+		go func(d *dock.Dock, dockIndex int) {
 			ev := <-d.Events
-			client.eventChan <- Event{ev, index}
+			client.eventChan <- Event{ev, dockIndex}
 		}(d, i)
 	}
 
