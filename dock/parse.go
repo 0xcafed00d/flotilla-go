@@ -55,7 +55,7 @@ func msgToEvent(msg string) Event {
 		}
 
 		event.ModuleType = FromString(module)
-		event.Port = port
+		event.Channel = port
 		if n > 3 {
 			event.Params = values[:n-3]
 		}

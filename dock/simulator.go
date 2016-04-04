@@ -1,4 +1,4 @@
-package flotilla
+package dock
 
 import (
 	"fmt"
@@ -23,33 +23,33 @@ func (s *Simulator) Type(index int) ModuleType {
 	return s.modules[index]
 }
 
-func (s *Simulator) Connect(modType ModuleType, index int) error {
-	if s.modules[index] != Unknown {
-		err := s.Disconnect(index)
+func (s *Simulator) Connect(modType ModuleType, channel int) error {
+	if s.modules[channel] != Unknown {
+		err := s.Disconnect(channel)
 		if err != nil {
 			return err
 		}
 	}
-	s.modules[index] = modType
-	_, err := fmt.Fprintf(s.port, "c %d/%s\r\n", index, modType)
+	s.modules[channel] = modType
+	_, err := fmt.Fprintf(s.port, "c %d/%s\r\n", channel, modType)
 	return err
 }
 
-func (s *Simulator) Disconnect(index int) error {
-	if s.modules[index] == Unknown {
+func (s *Simulator) Disconnect(channel int) error {
+	if s.modules[channel] == Unknown {
 		return nil
 	}
-	_, err := fmt.Fprintf(s.port, "d %d/%s\r\n", index, s.modules[index])
-	s.modules[index] = modType
+	_, err := fmt.Fprintf(s.port, "d %d/%s\r\n", channel, s.modules[channel])
+	s.modules[channel] = Unknown
 	return err
 }
 
-func (s *Simulator) NotifyUpdate(modType ModuleType, index int, params ...int) {
-	_, err := fmt.Fprintf(s.port, "u %d/%s %s\r\n", index, s.modules[index], join(params, ","))
+func (s *Simulator) NotifyUpdate(modType ModuleType, channel int, params ...int) error {
+	_, err := fmt.Fprintf(s.port, "u %d/%s %s\r\n", channel, s.modules[channel], join(params, ","))
 	return err
 }
 
-func (s *Simulator) OnSet(f func(modType ModuleType, index int, params ...int)) {
+func (s *Simulator) OnSet(f func(modType ModuleType, channel int, params ...int)) {
 }
 
 func (s *Simulator) Tick() error {

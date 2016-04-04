@@ -76,28 +76,28 @@ func (m ModuleType) String() string {
 type Module struct {
 	ModuleType
 	*Dock
-	port int
+	channel int
 }
 
 func (m *Module) ProcessEvent(ev Event) {
 	if ev.ModuleType == m.ModuleType {
 		if ev.EventType == Connected {
-			m.port = ev.Port
+			m.channel = ev.Channel
 		}
 		if ev.EventType == Disconnected {
-			m.port = -1
+			m.channel = -1
 		}
 	}
 }
 
 func (m *Module) Connected() bool {
-	return m.port != -1
+	return m.channel != -1
 }
 
-func (m *Module) Port() int {
-	return m.port
+func (m *Module) Channel() int {
+	return m.channel
 }
 
 func (m *Module) Set(params ...int) error {
-	return m.Dock.SetModuleData(m.port, m.ModuleType, params...)
+	return m.Dock.SetModuleData(m.channel, m.ModuleType, params...)
 }
