@@ -42,7 +42,7 @@ func (d *Dock) handleEvent(ev Event) {
 }
 
 func (d *Dock) reader() {
-	spliter := makeMessageSplitter()
+	spliter := makeMessageSplitter([]byte{0x0d, 0x0a}) // cr lf
 	buffer := make([]byte, 128)
 
 	for {

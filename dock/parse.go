@@ -5,16 +5,17 @@ import (
 	"fmt"
 )
 
-func makeMessageSplitter() func(input []byte) []string {
+type splitterFunc func(input []byte) []string
+
+func makeMessageSplitter(separator []byte) splitterFunc {
 	buffer := []byte{}
-	crlf := []byte{0x0d, 0x0a}
 
 	return func(input []byte) []string {
 		buffer = append(buffer, input...)
 		msgs := []string{}
 
 		for {
-			i := bytes.Index(buffer, crlf)
+			i := bytes.Index(buffer, separator)
 			if i == -1 {
 				break
 			}

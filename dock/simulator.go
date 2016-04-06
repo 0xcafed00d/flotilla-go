@@ -6,12 +6,17 @@ import (
 )
 
 type Simulator struct {
-	port    io.ReadWriteCloser
-	modules [8]ModuleType
+	port       io.ReadWriteCloser
+	modules    [8]ModuleType
+	splitter   splitterFunc
+	readBuffer []byte
 }
 
 func MakeSimulator(port io.ReadWriteCloser) *Simulator {
 	sim := Simulator{}
+	sim.splitter = makeMessageSplitter([]byte{0x0d}) // cr
+	sim.readBuffer = make([]byte, 128)
+
 	return &sim
 }
 
@@ -53,5 +58,8 @@ func (s *Simulator) OnSet(f func(modType ModuleType, channel int, params ...int)
 }
 
 func (s *Simulator) Tick() error {
+
+	//msgs := splitterFunc()
+
 	return nil
 }
