@@ -7,7 +7,8 @@ import (
 
 type dataBuffer struct {
 	sync.Mutex
-	data []byte
+	condition *sync.Cond
+	data      []byte
 }
 
 type Pipe struct {
@@ -35,6 +36,7 @@ type PipeEndpoint struct {
 }
 
 func (p *Pipe) GetEndpoint1() io.ReadWriteCloser {
+	p.buf[0].condition = sync.NewCond(&p.buf[0].Mutex)
 	return &PipeEndpoint{p, &p.buf[0]}
 }
 
@@ -43,25 +45,15 @@ func (p *Pipe) GetEndpoint2() io.ReadWriteCloser {
 }
 
 func (pe *PipeEndpoint) Read(p []byte) (n int, err error) {
-	for {
-		pe.buf.Lock()
+	pe.buf.Lock()
+	defer pe.buf.Unlock()
 
-		sync.Cond
-
-		if len(pe.buf.data) == 0 {
-			pe.buf.Unlock() // unlock buffer mutex so writes can occur
-			pe.waitReadable()
-			continue
-		}
-		count := copy(p, pe.buf.data)
-
-		pe.buf.Unlock()
-		return count, nil
+	for len(pe.buf.data) == 0 {
+		pe.buf.condition.Wait()
 	}
-}
+	count := copy(p, pe.buf.data)
 
-func (pe *PipeEndpoint) waitReadable() {
-
+	return count, nil
 }
 
 // Write never blocks
@@ -73,6 +65,7 @@ func (pe *PipeEndpoint) Write(p []byte) (n int, err error) {
 	pe.buf.Lock()
 	defer pe.buf.Unlock()
 	pe.buf.data = append(pe.buf.data, p...)
+	pe.buf.condition.Signal()
 	return len(p), nil
 }
 
