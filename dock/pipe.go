@@ -30,46 +30,48 @@ func (p *Pipe) Closed() bool {
 	return p.closed
 }
 
-type PipeEndpoint struct {
+type pipeEndpoint struct {
 	pipe *Pipe
-	buf  *dataBuffer
+	rbuf *dataBuffer
+	wbuf *dataBuffer
 }
 
-func (p *Pipe) GetEndpoint1() io.ReadWriteCloser {
+func NewPipe() (io.ReadWriteCloser, io.ReadWriteCloser, *Pipe) {
+	p := &Pipe{}
+
 	p.buf[0].condition = sync.NewCond(&p.buf[0].Mutex)
-	return &PipeEndpoint{p, &p.buf[0]}
+	p.buf[1].condition = sync.NewCond(&p.buf[1].Mutex)
+
+	return &pipeEndpoint{p, &p.buf[0], &p.buf[1]}, &pipeEndpoint{p, &p.buf[1], &p.buf[0]}, p
 }
 
-func (p *Pipe) GetEndpoint2() io.ReadWriteCloser {
-	return &PipeEndpoint{p, &p.buf[1]}
-}
+func (pe *pipeEndpoint) Read(p []byte) (n int, err error) {
+	pe.rbuf.Lock()
+	defer pe.rbuf.Unlock()
 
-func (pe *PipeEndpoint) Read(p []byte) (n int, err error) {
-	pe.buf.Lock()
-	defer pe.buf.Unlock()
-
-	for len(pe.buf.data) == 0 {
-		pe.buf.condition.Wait()
+	for len(pe.rbuf.data) == 0 {
+		pe.rbuf.condition.Wait()
 	}
-	count := copy(p, pe.buf.data)
+	count := copy(p, pe.rbuf.data)
+	pe.rbuf.data = pe.rbuf.data[count:]
 
 	return count, nil
 }
 
 // Write never blocks
-func (pe *PipeEndpoint) Write(p []byte) (n int, err error) {
+func (pe *pipeEndpoint) Write(p []byte) (n int, err error) {
 	if pe.pipe.Closed() {
 		return 0, io.EOF
 	}
 
-	pe.buf.Lock()
-	defer pe.buf.Unlock()
-	pe.buf.data = append(pe.buf.data, p...)
-	pe.buf.condition.Signal()
+	pe.wbuf.Lock()
+	defer pe.wbuf.Unlock()
+	pe.wbuf.data = append(pe.wbuf.data, p...)
+	pe.wbuf.condition.Signal()
 	return len(p), nil
 }
 
-func (pe *PipeEndpoint) Close() error {
+func (pe *pipeEndpoint) Close() error {
 	pe.pipe.Lock()
 	defer pe.pipe.Unlock()
 	pe.pipe.closed = true
