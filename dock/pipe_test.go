@@ -51,7 +51,7 @@ func TestEcho(t *testing.T) {
 func TestRace(t *testing.T) {
 	assert := assert.Make(t)
 
-	e1, e2, _ := NewPipe()
+	e1, e2, pipe := NewPipe()
 
 	assert(fmt.Fprintf(e1, "hello")).Equal(5, nil)
 	assert(fmt.Fprintf(e2, "WORLD")).Equal(5, nil)
@@ -63,9 +63,9 @@ func TestRace(t *testing.T) {
 			if err != nil {
 				break
 			}
-			fmt.Println(">", string(buffer))
 			e2.Write(buffer[:n])
 		}
+		fmt.Println("go func 1 closed")
 	}()
 
 	go func() {
@@ -75,10 +75,13 @@ func TestRace(t *testing.T) {
 			if err != nil {
 				break
 			}
-			fmt.Println("<", string(buffer[:n]))
 			e1.Write(buffer[:n])
 		}
+		fmt.Println("go func 2 closed")
 	}()
 
 	time.Sleep(3 * time.Second)
+	pipe.Close()
+	time.Sleep(time.Second)
+
 }

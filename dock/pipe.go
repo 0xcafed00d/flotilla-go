@@ -18,9 +18,13 @@ type Pipe struct {
 }
 
 func (p *Pipe) Close() error {
-	p.Lock()
-	defer p.Unlock()
-	p.closed = true
+	if !p.Closed() {
+		p.Lock()
+		p.closed = true
+		p.Unlock()
+		p.buf[0].condition.Signal()
+		p.buf[1].condition.Signal()
+	}
 	return nil
 }
 
@@ -49,13 +53,20 @@ func (pe *pipeEndpoint) Read(p []byte) (n int, err error) {
 	pe.rbuf.Lock()
 	defer pe.rbuf.Unlock()
 
-	for len(pe.rbuf.data) == 0 {
+	for len(pe.rbuf.data) == 0 && !pe.pipe.Closed() {
 		pe.rbuf.condition.Wait()
 	}
-	count := copy(p, pe.rbuf.data)
-	pe.rbuf.data = pe.rbuf.data[count:]
 
-	return count, nil
+	if len(pe.rbuf.data) > 0 {
+		n = copy(p, pe.rbuf.data)
+		pe.rbuf.data = pe.rbuf.data[n:]
+	}
+
+	if pe.pipe.Closed() {
+		err = io.EOF
+	}
+
+	return
 }
 
 // Write never blocks
@@ -72,8 +83,6 @@ func (pe *pipeEndpoint) Write(p []byte) (n int, err error) {
 }
 
 func (pe *pipeEndpoint) Close() error {
-	pe.pipe.Lock()
-	defer pe.pipe.Unlock()
-	pe.pipe.closed = true
+	pe.pipe.Close()
 	return nil
 }
