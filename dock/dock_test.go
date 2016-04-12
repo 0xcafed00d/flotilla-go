@@ -1,10 +1,8 @@
 package dock
 
 import (
-	"bytes"
+	"fmt"
 	"io"
-	"io/ioutil"
-	"strings"
 	"testing"
 
 	"github.com/simulatedsimian/assert"
@@ -89,16 +87,14 @@ func TestMsgParser(t *testing.T) {
 	})
 }
 
-type RW struct {
-	io.Reader
-	io.Writer
-}
-
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
 
-	s := RW{strings.NewReader("# message\r\nc 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), ioutil.Discard}
-	d := ConnectDock(s)
+	e1, e2, _ := NewPipe()
+
+	fmt.Fprintf(e1, "# message\r\nc 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n")
+	e1.Close()
+	d := ConnectDock(e2)
 
 	assert(<-d.Events).Equal(Event{
 		EventType: Message,
@@ -133,36 +129,44 @@ func TestMsgRec(t *testing.T) {
 func TestMsgModuleType(t *testing.T) {
 	assert := assert.Make(t)
 
-	s := RW{strings.NewReader("c 1/joystick\r\n"), ioutil.Discard}
-	d := ConnectDock(s)
+	e1, e2, _ := NewPipe()
+
+	fmt.Fprintf(e1, "c 1/joystick\r\n")
+	d := ConnectDock(e2)
 
 	<-d.Events
 	assert(d.GetModuleType(2)).Equal(Unknown)
 	assert(d.GetModuleType(1)).Equal(Joystick)
 
-	s = RW{strings.NewReader("c 1/joystick\r\nd 1/joystick\r\n"), ioutil.Discard}
-	d = ConnectDock(s)
+	fmt.Fprintf(e1, "d 1/joystick\r\n")
 
 	<-d.Events
-	<-d.Events
 	assert(d.GetModuleType(1)).Equal(Unknown)
+	e1.Close()
 }
 
 func TestMsgSend(t *testing.T) {
 	assert := assert.Make(t)
 
-	var out bytes.Buffer
+	buffer := make([]byte, 128)
 
-	s := RW{strings.NewReader("c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n"), &out}
-	d := ConnectDock(s)
+	e1, e2, _ := NewPipe()
+
+	fmt.Fprintf(e1, "c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n")
+	d := ConnectDock(e2)
 
 	assert(d.SendDockCommand('e')).NoError()
 	assert(d.SendDockCommand('p', 1)).NoError()
 
-	assert(out.String()).Equal("e\rp 1\r")
+	n, err := e1.Read(buffer)
+	assert(string(buffer[:n])).Equal("e\rp 1\r")
+	assert(err).NoError()
 
-	out.Reset()
 	assert(d.SetModuleData(1, Rainbow, 255, 255, 255)).NoError()
 	assert(d.SetModuleData(1, Rainbow, 255, 255, 255, 1)).HasError()
-	assert(out.String()).Equal("s 1 255,255,255\r")
+
+	n, err = e1.Read(buffer)
+	assert(string(buffer[:n])).Equal("s 1 255,255,255\r")
+	assert(err).NoError()
+	e1.Close()
 }
