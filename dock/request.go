@@ -2,48 +2,56 @@ package dock
 
 import "fmt"
 
-type ResponseType int
+type RequestType int
 
 const (
-	Invalid             = -1
-	Connected EventType = iota
-	Disconnected
-	Update
-	Message
-	Error
+	ReqInvalid             = -1
+	ReqEnquire RequestType = iota
+	ReqResetToBootloader
+	ReqVersion
+	ReqPower
+	ReqName
+	ReqDebug
+	ReqSet
 )
 
-func (e ResponseType) String() string {
+func (e RequestType) String() string {
 	switch e {
-	case Connected:
-		return "Connected"
-	case Disconnected:
-		return "Disconnected"
-	case Update:
-		return "Update"
-	case Message:
-		return "Message"
-	case Error:
-		return "Error"
+	case ReqEnquire:
+		return "Enquire"
+	case ReqResetToBootloader:
+		return "Reset To Bootloader"
+	case ReqVersion:
+		return "Version"
+	case ReqPower:
+		return "Power"
+	case ReqName:
+		return "Name"
+	case ReqDebug:
+		return "Debug"
+	case ReqSet:
+		return "Set"
 	}
-	return "invalid EventType"
+	return "invalid RequestType"
 }
 
-type Response struct {
-	EventType
-	ModuleType
-	Channel int
-	Params  []int
-	Message string
-	Error   error
+type Request struct {
+	RequestType
+	Channel  int
+	Params   []int
+	ParamStr string
 }
 
-func (e Response) String() string {
-	if e.EventType == Error {
-		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Error)
+func (e Request) String() string {
+	if e.RequestType == ReqName {
+		if e.Params[0] == int('u') {
+			return fmt.Sprintf("Request: [%v user, %v]", e.RequestType, e.ParamStr)
+		}
+		if e.Params[0] == int('d') {
+			return fmt.Sprintf("Request: [%v dock, %v]", e.RequestType, e.ParamStr)
+		}
+		return fmt.Sprintf("Request: [%v invalid(%v), %v]", e.RequestType, int(e.Params[0]), e.ParamStr)
 	}
-	if e.EventType == Message {
-		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Message)
-	}
-	return fmt.Sprintf("Event: [%v, %v, %v, %v]", e.EventType, e.ModuleType, e.Channel, e.Params)
+
+	return fmt.Sprintf("Request: [%v, %v]", e.RequestType, e.Params)
 }
