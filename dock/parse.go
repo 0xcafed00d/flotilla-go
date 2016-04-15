@@ -3,6 +3,7 @@ package dock
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 type splitterFunc func(input []byte) []string
@@ -64,6 +65,11 @@ func msgToEvent(msg string) Event {
 	return event
 }
 
+func msgToRequest(msg string) Request {
+	req := Request{RequestType: Invalid}
+	return req
+}
+
 func join(a []int, sep string) string {
 	if len(a) == 0 {
 		return ""
@@ -81,4 +87,33 @@ func join(a []int, sep string) string {
 	}
 
 	return b.String()
+}
+
+func choose(b bool, vt interface{}, vf interface{}) interface{} {
+	if b {
+		return vt
+	}
+	return vf
+}
+
+func split(s, charset string) []string {
+	res := []string{}
+	tokenStart := -1
+
+	for i, r := range s {
+		if strings.ContainsRune(charset, r) {
+			if tokenStart != -1 {
+				res = append(res, s[tokenStart:i])
+				tokenStart = -1
+			}
+		} else {
+			if tokenStart == -1 {
+				tokenStart = i
+			}
+		}
+	}
+	if tokenStart != -1 {
+		res = append(res, s[tokenStart:])
+	}
+	return res
 }

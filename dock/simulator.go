@@ -3,19 +3,18 @@ package dock
 import (
 	"fmt"
 	"io"
+	"sync"
 )
 
 type Simulator struct {
-	port       io.ReadWriteCloser
-	modules    [8]ModuleType
-	splitter   splitterFunc
-	readBuffer []byte
+	port    io.ReadWriteCloser
+	modules [8]ModuleType
+	sync.Mutex
+	recMsgs []string
 }
 
 func MakeSimulator(port io.ReadWriteCloser) *Simulator {
 	sim := Simulator{}
-	sim.splitter = makeMessageSplitter([]byte{0x0d}) // cr
-	sim.readBuffer = make([]byte, 128)
 
 	return &sim
 }
@@ -55,6 +54,15 @@ func (s *Simulator) NotifyUpdate(modType ModuleType, channel int, params ...int)
 }
 
 func (s *Simulator) OnSet(f func(modType ModuleType, channel int, params ...int)) {
+}
+
+func (s *Simulator) reader() {
+	//splitter := makeMessageSplitter([]byte{0x0d}) // cr
+	//	readBuffer := make([]byte, 128)
+
+	for {
+
+	}
 }
 
 func (s *Simulator) Tick() error {

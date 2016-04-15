@@ -50,7 +50,7 @@ func (e Request) String() string {
 		if e.Params[0] == int('d') {
 			return fmt.Sprintf("Request: [%v dock, %v]", e.RequestType, e.ParamStr)
 		}
-		return fmt.Sprintf("Request: [%v invalid(%v), %v]", e.RequestType, int(e.Params[0]), e.ParamStr)
+		return fmt.Sprintf("Request: [%v invalid(%v), %v]", e.RequestType, e.Params[0], e.ParamStr)
 	}
 
 	return fmt.Sprintf("Request: [%v, %v]", e.RequestType, e.Params)
