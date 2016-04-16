@@ -5,8 +5,8 @@ import "fmt"
 type RequestType int
 
 const (
-	ReqInvalid             = -1
-	ReqEnquire RequestType = iota
+	ReqInvalid RequestType = iota
+	ReqEnquire
 	ReqResetToBootloader
 	ReqVersion
 	ReqPower

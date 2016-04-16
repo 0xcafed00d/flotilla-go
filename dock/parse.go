@@ -3,6 +3,7 @@ package dock
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -66,8 +67,48 @@ func msgToEvent(msg string) Event {
 }
 
 func msgToRequest(msg string) Request {
-	req := Request{RequestType: Invalid}
-	return req
+
+	parts := split(msg, " ,")
+	if len(parts) == 0 {
+		return Request{}
+	}
+
+	switch parts[0] {
+	case "e":
+		if len(parts) == 1 {
+			return Request{RequestType: ReqEnquire}
+		}
+	case "r":
+		if len(parts) == 1 {
+			return Request{RequestType: ReqResetToBootloader}
+		}
+	case "d":
+		if len(parts) == 1 {
+			return Request{RequestType: ReqDebug}
+		}
+	case "v":
+		if len(parts) == 1 {
+			return Request{RequestType: ReqVersion}
+		}
+
+	case "p":
+		if len(parts) == 2 {
+			val, err := strconv.Atoi(parts[1])
+			if err == nil && (val == 1 || val == 0) {
+				return Request{RequestType: ReqPower, Params: []int{val}}
+			}
+		}
+	case "":
+		if len(parts) == 2 {
+			val, err := strconv.Atoi(parts[1])
+			if err == nil && (val == 1 || val == 0) {
+				return Request{RequestType: ReqPower, Params: []int{val}}
+			}
+		}
+
+	}
+
+	return Request{}
 }
 
 func join(a []int, sep string) string {
