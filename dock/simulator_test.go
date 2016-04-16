@@ -22,5 +22,4 @@ func TestParseRequest(t *testing.T) {
 	assert(msgToRequest("n u world")).Equal(Request{RequestType: ReqName, Params: []int{'u'}, ParamStr: "world"})
 
 	assert(msgToRequest("s 5 1,2,3")).Equal(Request{RequestType: ReqSet, Channel: 5, Params: []int{1, 2, 3}})
-
 }

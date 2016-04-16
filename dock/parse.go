@@ -98,14 +98,25 @@ func msgToRequest(msg string) Request {
 				return Request{RequestType: ReqPower, Params: []int{val}}
 			}
 		}
-	case "":
-		if len(parts) == 2 {
-			val, err := strconv.Atoi(parts[1])
-			if err == nil && (val == 1 || val == 0) {
-				return Request{RequestType: ReqPower, Params: []int{val}}
+	case "n":
+		if len(parts) == 3 {
+			if parts[1] == "d" || parts[1] == "u" {
+				return Request{RequestType: ReqName, Params: []int{int(parts[1][0])}, ParamStr: parts[2]}
 			}
 		}
+	case "s":
+		if len(parts) > 3 {
+			params := []int{}
 
+			for _, v := range parts[1:] {
+				val, err := strconv.Atoi(v)
+				if err != nil {
+					break
+				}
+				params = append(params, val)
+			}
+			return Request{RequestType: ReqSet, Channel: params[0], Params: params[1:]}
+		}
 	}
 
 	return Request{}
