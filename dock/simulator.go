@@ -10,12 +10,13 @@ type Simulator struct {
 	port    io.ReadWriteCloser
 	modules [8]ModuleType
 	sync.Mutex
-	recMsgs []string
+	requests chan Request
+	err      error
 }
 
 func MakeSimulator(port io.ReadWriteCloser) *Simulator {
-	sim := Simulator{}
-
+	sim := Simulator{port: port}
+	go sim.reader()
 	return &sim
 }
 
@@ -53,21 +54,22 @@ func (s *Simulator) NotifyUpdate(modType ModuleType, channel int, params ...int)
 	return err
 }
 
-func (s *Simulator) OnSet(f func(modType ModuleType, channel int, params ...int)) {
-}
-
 func (s *Simulator) reader() {
-	//splitter := makeMessageSplitter([]byte{0x0d}) // cr
-	//	readBuffer := make([]byte, 128)
+	splitter := makeMessageSplitter([]byte{0x0d}) // cr
+	buffer := make([]byte, 128)
 
 	for {
+		n, err := s.port.Read(buffer)
+		if n > 0 {
+			msgs := splitter(buffer[:n])
+			for _, msg := range msgs {
+				s.requests <- msgToRequest(msg)
+			}
+		}
 
+		if err != nil {
+			close(s.requests)
+			return
+		}
 	}
-}
-
-func (s *Simulator) Tick() error {
-
-	//msgs := splitterFunc()
-
-	return nil
 }

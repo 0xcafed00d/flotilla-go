@@ -42,13 +42,13 @@ func (d *Dock) handleEvent(ev Event) {
 }
 
 func (d *Dock) reader() {
-	spliter := makeMessageSplitter([]byte{0x0d, 0x0a}) // cr lf
+	splitter := makeMessageSplitter([]byte{0x0d, 0x0a}) // cr lf
 	buffer := make([]byte, 128)
 
 	for {
 		n, err := d.port.Read(buffer)
 		if n > 0 {
-			msgs := spliter(buffer[:n])
+			msgs := splitter(buffer[:n])
 			for _, msg := range msgs {
 				d.handleEvent(msgToEvent(msg))
 			}
