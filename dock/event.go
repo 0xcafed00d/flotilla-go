@@ -5,25 +5,25 @@ import "fmt"
 type EventType int
 
 const (
-	Invalid             = -1
-	Connected EventType = iota
-	Disconnected
-	Update
-	Message
-	Error
+	EventInvalid EventType = iota
+	EventConnected
+	EventDisconnected
+	EventUpdate
+	EventMessage
+	EventError
 )
 
 func (e EventType) String() string {
 	switch e {
-	case Connected:
+	case EventConnected:
 		return "Connected"
-	case Disconnected:
+	case EventDisconnected:
 		return "Disconnected"
-	case Update:
+	case EventUpdate:
 		return "Update"
-	case Message:
+	case EventMessage:
 		return "Message"
-	case Error:
+	case EventError:
 		return "Error"
 	}
 	return "invalid EventType"
@@ -39,10 +39,10 @@ type Event struct {
 }
 
 func (e Event) String() string {
-	if e.EventType == Error {
+	if e.EventType == EventError {
 		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Error)
 	}
-	if e.EventType == Message {
+	if e.EventType == EventMessage {
 		return fmt.Sprintf("Event: [%v, %v]", e.EventType, e.Message)
 	}
 	return fmt.Sprintf("Event: [%v, %v, %v, %v]", e.EventType, e.ModuleType, e.Channel, e.Params)

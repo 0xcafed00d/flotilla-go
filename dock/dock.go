@@ -26,13 +26,13 @@ func ConnectDock(port io.ReadWriter) *Dock {
 }
 
 func (d *Dock) handleEvent(ev Event) {
-	if ev.EventType == Disconnected {
+	if ev.EventType == EventDisconnected {
 		d.RWMutex.Lock()
 		d.moduleTypes[ev.Channel] = Unknown
 		d.RWMutex.Unlock()
 	}
 
-	if ev.EventType == Connected {
+	if ev.EventType == EventConnected {
 		d.RWMutex.Lock()
 		d.moduleTypes[ev.Channel] = ev.ModuleType
 		d.RWMutex.Unlock()
@@ -55,7 +55,7 @@ func (d *Dock) reader() {
 		}
 
 		if err != nil {
-			d.handleEvent(Event{EventType: Error, Error: err})
+			d.handleEvent(Event{EventType: EventError, Error: err})
 			return
 		}
 	}

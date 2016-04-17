@@ -14,7 +14,7 @@ type Simulator struct {
 	err      error
 }
 
-func MakeSimulator(port io.ReadWriteCloser) *Simulator {
+func NewSimulator(port io.ReadWriteCloser) *Simulator {
 	sim := Simulator{port: port}
 	go sim.reader()
 	return &sim

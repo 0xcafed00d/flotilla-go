@@ -42,19 +42,19 @@ func msgToEvent(msg string) Event {
 		&values[4], &values[5], &values[6], &values[7])
 
 	if evtype == '#' {
-		return Event{EventType: Message, Message: msg}
+		return Event{EventType: EventMessage, Message: msg}
 	}
 
-	event := Event{EventType: Invalid}
+	event := Event{EventType: EventInvalid}
 
 	if n >= 3 {
 		switch evtype {
 		case 'c':
-			event.EventType = Connected
+			event.EventType = EventConnected
 		case 'd':
-			event.EventType = Disconnected
+			event.EventType = EventDisconnected
 		case 'u':
-			event.EventType = Update
+			event.EventType = EventUpdate
 		}
 
 		event.ModuleType = FromString(module)

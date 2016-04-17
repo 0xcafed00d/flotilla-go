@@ -46,7 +46,7 @@ func main() {
 			matrixModule.ProcessEvent(ev)
 			numberModule.ProcessEvent(ev)
 
-			if ev.ModuleType == dock.Touch && ev.EventType == dock.Update {
+			if ev.ModuleType == dock.Touch && ev.EventType == dock.EventUpdate {
 				if ev.Params[0] == 1 {
 					board.randomPopulation(rng)
 					board.writeBoard(&matrixModule)

@@ -81,10 +81,10 @@ type Module struct {
 
 func (m *Module) ProcessEvent(ev Event) {
 	if ev.ModuleType == m.ModuleType {
-		if ev.EventType == Connected {
+		if ev.EventType == EventConnected {
 			m.channel = ev.Channel
 		}
-		if ev.EventType == Disconnected {
+		if ev.EventType == EventDisconnected {
 			m.channel = -1
 		}
 	}

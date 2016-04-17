@@ -49,38 +49,38 @@ func TestMsgParser(t *testing.T) {
 	assert := assert.Make(t)
 
 	assert(msgToEvent("u 1/joystick 1,234,874")).Equal(Event{
-		EventType:  Update,
+		EventType:  EventUpdate,
 		ModuleType: Joystick,
 		Channel:    1,
 		Params:     []int{1, 234, 874},
 	})
 
 	assert(msgToEvent("c 1/joystick")).Equal(Event{
-		EventType:  Connected,
+		EventType:  EventConnected,
 		ModuleType: Joystick,
 		Channel:    1,
 	})
 
 	assert(msgToEvent("d 1/joystick")).Equal(Event{
-		EventType:  Disconnected,
+		EventType:  EventDisconnected,
 		ModuleType: Joystick,
 		Channel:    1,
 	})
 
 	assert(msgToEvent("# this is a message")).Equal(Event{
-		EventType: Message,
+		EventType: EventMessage,
 		Message:   "# this is a message",
 	})
 
 	assert(msgToEvent("u 1/xxxx 1,234,874")).Equal(Event{
-		EventType:  Update,
+		EventType:  EventUpdate,
 		ModuleType: Unknown,
 		Channel:    1,
 		Params:     []int{1, 234, 874},
 	})
 
 	assert(msgToEvent("p 1/xxxx 1,234,874")).Equal(Event{
-		EventType:  Invalid,
+		EventType:  EventInvalid,
 		ModuleType: Unknown,
 		Channel:    1,
 		Params:     []int{1, 234, 874},
@@ -97,31 +97,31 @@ func TestMsgRec(t *testing.T) {
 	d := ConnectDock(e2)
 
 	assert(<-d.Events).Equal(Event{
-		EventType: Message,
+		EventType: EventMessage,
 		Message:   "# message",
 	})
 
 	assert(<-d.Events).Equal(Event{
-		EventType:  Connected,
+		EventType:  EventConnected,
 		ModuleType: Joystick,
 		Channel:    1,
 	})
 
 	assert(<-d.Events).Equal(Event{
-		EventType:  Update,
+		EventType:  EventUpdate,
 		ModuleType: Joystick,
 		Channel:    1,
 		Params:     []int{1, 234, 874},
 	})
 
 	assert(<-d.Events).Equal(Event{
-		EventType:  Disconnected,
+		EventType:  EventDisconnected,
 		ModuleType: Joystick,
 		Channel:    1,
 	})
 
 	assert(<-d.Events).Equal(Event{
-		EventType: Error,
+		EventType: EventError,
 		Error:     io.EOF,
 	})
 }
