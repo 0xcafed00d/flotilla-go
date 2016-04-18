@@ -1,6 +1,8 @@
 package dock
 
 import (
+	"fmt"
+	"io"
 	"testing"
 
 	"github.com/simulatedsimian/assert"
@@ -30,7 +32,9 @@ func TestSimulatorRequest(t *testing.T) {
 	e1, e2, _ := NewPipe()
 	sim := NewSimulator(e1)
 
-	assert(true)
+	fmt.Fprint(e2, "e\r")
+	assert(<-sim.Requests).Equal(Request{RequestType: ReqEnquire})
+	e2.Close()
+	assert(<-sim.Requests).Equal(Request{RequestType: ReqError, Error: io.EOF})
 
-	_, sim = e2, sim
 }

@@ -22,7 +22,7 @@ func makeMessageSplitter(separator []byte) splitterFunc {
 				break
 			}
 			msgs = append(msgs, string(buffer[:i]))
-			buffer = buffer[i+2:]
+			buffer = buffer[i+len(separator):]
 		}
 
 		return msgs

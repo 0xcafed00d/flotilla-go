@@ -15,6 +15,7 @@ type Simulator struct {
 
 func NewSimulator(port io.ReadWriteCloser) *Simulator {
 	sim := Simulator{port: port}
+	sim.Requests = make(chan Request, 128)
 	go sim.reader()
 	return &sim
 }
@@ -68,7 +69,6 @@ func (s *Simulator) reader() {
 
 		if err != nil {
 			s.Requests <- Request{RequestType: ReqError, Error: err}
-			close(s.Requests)
 			return
 		}
 	}
