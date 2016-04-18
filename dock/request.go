@@ -13,6 +13,7 @@ const (
 	ReqName
 	ReqDebug
 	ReqSet
+	ReqError
 )
 
 func (e RequestType) String() string {
@@ -31,6 +32,8 @@ func (e RequestType) String() string {
 		return "Debug"
 	case ReqSet:
 		return "Set"
+	case ReqError:
+		return "Error"
 	}
 	return "invalid RequestType"
 }
@@ -40,9 +43,13 @@ type Request struct {
 	Channel  int
 	Params   []int
 	ParamStr string
+	Error    error
 }
 
 func (e Request) String() string {
+	if e.RequestType == ReqError {
+		return fmt.Sprintf("Request: [%v, %v]", e.RequestType, e.Error)
+	}
 	if e.RequestType == ReqName {
 		if e.Params[0] == int('u') {
 			return fmt.Sprintf("Request: [%v user, %v]", e.RequestType, e.ParamStr)

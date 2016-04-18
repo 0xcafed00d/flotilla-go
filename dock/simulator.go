@@ -10,8 +10,7 @@ type Simulator struct {
 	port    io.ReadWriteCloser
 	modules [8]ModuleType
 	sync.Mutex
-	requests chan Request
-	err      error
+	Requests chan Request
 }
 
 func NewSimulator(port io.ReadWriteCloser) *Simulator {
@@ -63,12 +62,13 @@ func (s *Simulator) reader() {
 		if n > 0 {
 			msgs := splitter(buffer[:n])
 			for _, msg := range msgs {
-				s.requests <- msgToRequest(msg)
+				s.Requests <- msgToRequest(msg)
 			}
 		}
 
 		if err != nil {
-			close(s.requests)
+			s.Requests <- Request{RequestType: ReqError, Error: err}
+			close(s.Requests)
 			return
 		}
 	}

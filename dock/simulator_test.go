@@ -23,3 +23,14 @@ func TestParseRequest(t *testing.T) {
 
 	assert(msgToRequest("s 5 1,2,3")).Equal(Request{RequestType: ReqSet, Channel: 5, Params: []int{1, 2, 3}})
 }
+
+func TestSimulatorRequest(t *testing.T) {
+	assert := assert.Make(t)
+
+	e1, e2, _ := NewPipe()
+	sim := NewSimulator(e1)
+
+	assert(true)
+
+	_, sim = e2, sim
+}
