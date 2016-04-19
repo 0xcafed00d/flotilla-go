@@ -28,7 +28,7 @@ func (c *Client) Run() error {
 
 	for {
 		ev := <-c.eventChan
-		if ev.EventType == dock.Error {
+		if ev.EventType == dock.EventError {
 			return ev.Error
 		}
 	}

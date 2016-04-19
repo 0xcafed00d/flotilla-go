@@ -14,10 +14,10 @@ type Module struct {
 
 func (m *Module) Update(ev Event) {
 	if ev.ModuleType == m.ModuleType {
-		if ev.EventType == dock.Connected {
+		if ev.EventType == dock.EventConnected {
 			m.ModuleAddress = ModuleAddress{ev.dockIndex, ev.Channel}
 		}
-		if ev.EventType == dock.Disconnected {
+		if ev.EventType == dock.EventDisconnected {
 			m.ModuleAddress = ModuleAddress{-1, -1}
 		}
 	}

@@ -2,7 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Test",
+			"name": "Test Dock",
 			"type": "go",
 			"request": "launch",
 			"mode": "test",
@@ -10,6 +10,18 @@
 			"port": 2345,
 			"host": "127.0.0.1",
 			"program": "${workspaceRoot}/dock",
+			"env": {},
+			"args": []
+		},
+		{
+			"name": "Test Flotilla",
+			"type": "go",
+			"request": "launch",
+			"mode": "test",
+			"remotePath": "",
+			"port": 2345,
+			"host": "127.0.0.1",
+			"program": "${workspaceRoot}/flotilla",
 			"env": {},
 			"args": []
 		}
