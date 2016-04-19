@@ -14,7 +14,7 @@ func TestClose(t *testing.T) {
 
 	buffer := make([]byte, 128)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	assert(fmt.Fprintf(e1, "hello")).Equal(5, nil)
 	assert(fmt.Fprintf(e1, "world")).Equal(5, nil)
@@ -29,7 +29,7 @@ func TestPipe1(t *testing.T) {
 
 	buffer := make([]byte, 128)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	assert(fmt.Fprintf(e1, "hello")).Equal(5, nil)
 	assert(fmt.Fprintf(e1, "world")).Equal(5, nil)
@@ -43,7 +43,7 @@ func TestEcho(t *testing.T) {
 
 	buffer := make([]byte, 128)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	go func() {
 		buffer := make([]byte, 128)
@@ -67,7 +67,8 @@ func TestEcho(t *testing.T) {
 func TestRace(t *testing.T) {
 	assert := assert.Make(t)
 
-	e1, e2, pipe := NewPipe()
+	pipe := NewPipe()
+	e1, e2 := pipe.Endpoints()
 
 	assert(fmt.Fprintf(e1, "hello")).Equal(5, nil)
 	assert(fmt.Fprintf(e2, "WORLD")).Equal(5, nil)

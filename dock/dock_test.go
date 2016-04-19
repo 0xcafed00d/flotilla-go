@@ -90,7 +90,7 @@ func TestMsgParser(t *testing.T) {
 func TestMsgRec(t *testing.T) {
 	assert := assert.Make(t)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	fmt.Fprintf(e1, "# message\r\nc 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n")
 	e1.Close()
@@ -129,7 +129,7 @@ func TestMsgRec(t *testing.T) {
 func TestMsgModuleType(t *testing.T) {
 	assert := assert.Make(t)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	fmt.Fprintf(e1, "c 1/joystick\r\n")
 	d := ConnectDock(e2)
@@ -150,7 +150,7 @@ func TestMsgSend(t *testing.T) {
 
 	buffer := make([]byte, 128)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 
 	fmt.Fprintf(e1, "c 1/joystick\r\nu 1/joystick 1,234,874\r\nd 1/joystick\r\n")
 	d := ConnectDock(e2)

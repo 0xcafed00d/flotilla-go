@@ -15,6 +15,8 @@ type Pipe struct {
 	buf [2]dataBuffer
 	sync.Mutex
 	closed bool
+	e1     io.ReadWriteCloser
+	e2     io.ReadWriteCloser
 }
 
 func (p *Pipe) Close() error {
@@ -34,19 +36,25 @@ func (p *Pipe) Closed() bool {
 	return p.closed
 }
 
+func (p *Pipe) Endpoints() (io.ReadWriteCloser, io.ReadWriteCloser) {
+	return p.e1, p.e2
+}
+
 type pipeEndpoint struct {
 	pipe *Pipe
 	rbuf *dataBuffer
 	wbuf *dataBuffer
 }
 
-func NewPipe() (io.ReadWriteCloser, io.ReadWriteCloser, *Pipe) {
+func NewPipe() *Pipe {
 	p := &Pipe{}
 
 	p.buf[0].condition = sync.NewCond(&p.buf[0].Mutex)
 	p.buf[1].condition = sync.NewCond(&p.buf[1].Mutex)
+	p.e1 = &pipeEndpoint{p, &p.buf[0], &p.buf[1]}
+	p.e2 = &pipeEndpoint{p, &p.buf[1], &p.buf[0]}
 
-	return &pipeEndpoint{p, &p.buf[0], &p.buf[1]}, &pipeEndpoint{p, &p.buf[1], &p.buf[0]}, p
+	return p
 }
 
 func (pe *pipeEndpoint) Read(p []byte) (n int, err error) {

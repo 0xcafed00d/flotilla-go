@@ -29,7 +29,7 @@ func TestParseRequest(t *testing.T) {
 func TestSimulatorRequest(t *testing.T) {
 	assert := assert.Make(t)
 
-	e1, e2, _ := NewPipe()
+	e1, e2 := NewPipe().Endpoints()
 	sim := NewSimulator(e1)
 
 	fmt.Fprint(e2, "e\r")
