@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/simulatedsimian/assert"
+	"github.com/simulatedsimian/flotilla/dock"
 )
 
 type RequiredModules struct {
@@ -16,4 +17,11 @@ type RequiredModules struct {
 func TestAquire(t *testing.T) {
 	assert := assert.Make(t)
 	assert(true)
+
+	e1, _ := dock.NewPipe().Endpoints()
+
+	client, _ := ConnectToDocksRaw(e1)
+
+	client.AquireModules(RequiredModules{})
+
 }
