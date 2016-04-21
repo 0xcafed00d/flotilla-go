@@ -21,6 +21,18 @@ type Client struct {
 	eventChan chan Event
 }
 
+func (c *Client) structMembersToInterfaces(modules interface{}) (res []interface{}) {
+	if reflect.TypeOf(modules).Kind() != reflect.Struct {
+		panic("modules supplied to Client.AquireModules not a struct")
+	}
+
+	fields := reflect.TypeOf(modules).NumField()
+	for i := 0; i < fields; i++ {
+		res = append(res, reflect.ValueOf(modules).Field(i).Interface())
+	}
+	return
+}
+
 func (c *Client) AquireModules(modules interface{}) {
 	if reflect.TypeOf(modules).Kind() != reflect.Struct {
 		panic("modules supplied to Client.AquireModules not a struct")

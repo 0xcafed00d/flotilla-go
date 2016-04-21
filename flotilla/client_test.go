@@ -22,6 +22,7 @@ func TestAquire(t *testing.T) {
 
 	client, _ := ConnectToDocksRaw(e1)
 
-	client.AquireModules(RequiredModules{})
-
+	assert(client.structMembersToInterfaces(RequiredModules{})).Equal(
+		[]interface{}{Matrix{}, Touch{}, Number{}, Dial{}},
+	)
 }
