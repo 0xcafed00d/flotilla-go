@@ -7,22 +7,26 @@ type ModuleAddress struct {
 }
 
 type Module struct {
-	ModuleAddress
-	dock.ModuleType
+	address    ModuleAddress
+	moduleType dock.ModuleType
 	*Client
 }
 
 func (m *Module) Update(ev Event) {
-	if ev.ModuleType == m.ModuleType {
+	if ev.ModuleType == m.moduleType {
 		if ev.EventType == dock.EventConnected {
-			m.ModuleAddress = ModuleAddress{ev.dockIndex, ev.Channel}
+			m.address = ModuleAddress{ev.dockIndex, ev.Channel}
 		}
 		if ev.EventType == dock.EventDisconnected {
-			m.ModuleAddress = ModuleAddress{-1, -1}
+			m.address = ModuleAddress{-1, -1}
 		}
 	}
 }
 
 func (m *Module) Connected(ev Event) bool {
-	return m.ModuleAddress.channel != -1
+	return m.address.channel != -1
+}
+
+func (m *Module) Type() dock.ModuleType {
+	return m.moduleType
 }
