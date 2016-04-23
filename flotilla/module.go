@@ -9,7 +9,7 @@ type ModuleAddress struct {
 type Module struct {
 	address    ModuleAddress
 	moduleType dock.ModuleType
-	*Client
+	client     *Client
 }
 
 func (m *Module) Update(ev Event) {

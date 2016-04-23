@@ -18,29 +18,33 @@ type Event struct {
 type Client struct {
 	ports     []io.ReadWriteCloser
 	docks     []*dock.Dock
+	modules   map[ModuleAddress]Updateable
 	eventChan chan Event
 }
 
-func (c *Client) structMembersToInterfaces(modules interface{}) (res []interface{}) {
-	if reflect.TypeOf(modules).Kind() != reflect.Struct {
+func (c *Client) structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
+	if reflect.TypeOf(moduleStruct).Kind() != reflect.Struct {
 		panic("modules supplied to Client.AquireModules not a struct")
 	}
 
-	fields := reflect.TypeOf(modules).NumField()
+	fields := reflect.TypeOf(moduleStruct).NumField()
 	for i := 0; i < fields; i++ {
-		res = append(res, reflect.ValueOf(modules).Field(i).Interface())
+		res = append(res, reflect.ValueOf(moduleStruct).Field(i).Interface())
 	}
 	return
 }
 
-func (c *Client) AquireModules(modules interface{}) {
-	if reflect.TypeOf(modules).Kind() != reflect.Struct {
-		panic("modules supplied to Client.AquireModules not a struct")
-	}
+func (c *Client) AquireModules(moduleStruct interface{}) {
 
-	fields := reflect.TypeOf(modules).NumField()
-	for i := 0; i < fields; i++ {
-		fmt.Println(reflect.TypeOf(modules).Field(i).Type.Name())
+	modules := c.structMembersToInterfaces(moduleStruct)
+
+	for _, m := range modules {
+		if mod, ok := m.(Module); ok {
+			mod.client = c
+			c.modules = append(c.modules, &mod)
+		} else {
+			panic("TODO, handle not module")
+		}
 	}
 }
 
