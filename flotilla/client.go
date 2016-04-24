@@ -23,7 +23,7 @@ type Client struct {
 	eventChan       chan Event
 }
 
-func (c *Client) structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
+func structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
 	if reflect.TypeOf(moduleStruct).Kind() != reflect.Struct {
 		panic("modules supplied to Client.AquireModules not a struct")
 	}
@@ -37,7 +37,7 @@ func (c *Client) structMembersToInterfaces(moduleStruct interface{}) (res []inte
 
 func (c *Client) AquireModules(moduleStruct interface{}) {
 
-	modules := c.structMembersToInterfaces(moduleStruct)
+	modules := structMembersToInterfaces(moduleStruct)
 
 	for _, m := range modules {
 		if mod, ok := m.(Module); ok {

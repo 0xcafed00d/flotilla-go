@@ -8,7 +8,8 @@ import (
 )
 
 type RequiredModules struct {
-	Matrix
+	M1 Matrix
+	M2 Matrix
 	Touch
 	Number
 	Dial
@@ -16,15 +17,26 @@ type RequiredModules struct {
 
 func TestAquire(t *testing.T) {
 	assert := assert.Make(t)
-	assert(true)
 
-	e1, _ := dock.NewPipe().Endpoints()
+	assert(structMembersToInterfaces(RequiredModules{})).Equal(
+		[]interface{}{Matrix{}, Matrix{}, Touch{}, Number{}, Dial{}},
+	)
+}
+
+func TestConnectDisconnect(t *testing.T) {
+	assert := assert.Make(t)
+
+	e1, e2 := dock.NewPipe().Endpoints()
 
 	client, _ := ConnectToDocksRaw(e1)
+	sim := dock.NewSimulator(e2)
 
-	assert(client.structMembersToInterfaces(RequiredModules{})).Equal(
-		[]interface{}{Matrix{}, Touch{}, Number{}, Dial{}},
-	)
+	var modules RequiredModules
+	client.AquireModules(modules)
+
+	sim.Connect(dock.Matrix, 3)
+
+	assert(modules.M1.Connected()).Equal(true)
 
 	e1.Close()
 }
