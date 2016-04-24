@@ -16,10 +16,11 @@ type Event struct {
 }
 
 type Client struct {
-	ports     []io.ReadWriteCloser
-	docks     []*dock.Dock
-	modules   map[ModuleAddress]Updateable
-	eventChan chan Event
+	ports           []io.ReadWriteCloser
+	docks           []*dock.Dock
+	connecteModules map[ModuleAddress]Updateable
+	modules         []Updateable
+	eventChan       chan Event
 }
 
 func (c *Client) structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
@@ -55,6 +56,28 @@ func (c *Client) Run() error {
 		if ev.EventType == dock.EventError {
 			return ev.Error
 		}
+
+		addr := ModuleAddress{dock: ev.dockIndex, channel: ev.Channel}
+
+		if m, ok := c.connecteModules[addr]; ok {
+			m.Update(ev)
+			if !m.Connected() {
+				delete(c.connecteModules, addr)
+			}
+			break
+		}
+
+		if ev.EventType == dock.EventConnected {
+			for _, m := range c.modules {
+				if !m.Connected() {
+					m.Update(ev)
+					if m.Connected() {
+						c.connecteModules[addr] = m
+						break
+					}
+				}
+			}
+		}
 	}
 
 	return nil
@@ -70,6 +93,7 @@ func (c *Client) Close() {
 func makeClient() *Client {
 	client := Client{}
 	client.eventChan = make(chan Event, 100)
+	client.connecteModules = make(map[ModuleAddress]Updateable)
 	return &client
 }
 

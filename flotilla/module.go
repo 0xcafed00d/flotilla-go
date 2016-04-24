@@ -23,7 +23,7 @@ func (m *Module) Update(ev Event) {
 	}
 }
 
-func (m *Module) Connected(ev Event) bool {
+func (m *Module) Connected() bool {
 	return m.address.channel != -1
 }
 

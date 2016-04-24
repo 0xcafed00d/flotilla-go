@@ -25,4 +25,6 @@ func TestAquire(t *testing.T) {
 	assert(client.structMembersToInterfaces(RequiredModules{})).Equal(
 		[]interface{}{Matrix{}, Touch{}, Number{}, Dial{}},
 	)
+
+	e1.Close()
 }
