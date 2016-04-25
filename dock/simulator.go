@@ -24,29 +24,39 @@ func (s *Simulator) Close() {
 	s.port.Close()
 }
 
-func (s *Simulator) Type(index int) ModuleType {
-	return s.modules[index]
+func (s *Simulator) Type(channel int) ModuleType {
+	return s.modules[channel-1]
 }
 
 func (s *Simulator) Connect(modType ModuleType, channel int) error {
-	if s.modules[channel] != Unknown {
+	if s.modules[channel-1] != Unknown {
 		err := s.Disconnect(channel)
 		if err != nil {
 			return err
 		}
 	}
-	s.modules[channel] = modType
+	s.modules[channel-1] = modType
 	_, err := fmt.Fprintf(s.port, "c %d/%s\r\n", channel, modType)
 	return err
 }
 
 func (s *Simulator) Disconnect(channel int) error {
-	if s.modules[channel] == Unknown {
+	if s.modules[channel-1] == Unknown {
 		return nil
 	}
-	_, err := fmt.Fprintf(s.port, "d %d/%s\r\n", channel, s.modules[channel])
-	s.modules[channel] = Unknown
+	_, err := fmt.Fprintf(s.port, "d %d/%s\r\n", channel, s.modules[channel-1])
+	s.modules[channel-1] = Unknown
 	return err
+}
+
+func (s *Simulator) NotifyAttachedModules() error {
+	for i := range s.modules {
+		_, err := fmt.Fprintf(s.port, "c %d/%s\r\n", i+1, s.modules[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Simulator) NotifyUpdate(modType ModuleType, channel int, params ...int) error {
