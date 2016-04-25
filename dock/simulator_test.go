@@ -38,3 +38,18 @@ func TestSimulatorRequest(t *testing.T) {
 	assert(<-sim.Requests).Equal(Request{RequestType: ReqError, Error: io.EOF})
 
 }
+
+func TestSimulatorConnectDisconnect(t *testing.T) {
+	assert := assert.Make(t)
+
+	e1, e2 := NewPipe().Endpoints()
+	sim := NewSimulator(e1)
+
+	assert(sim.modules[2]).Equal(Unknown)
+	sim.Connect(Matrix, 3)
+	assert(sim.modules[2]).Equal(Matrix)
+	sim.Disconnect(3)
+	assert(sim.modules[2]).Equal(Unknown)
+
+	e2.Close()
+}
