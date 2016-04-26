@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/simulatedsimian/assert"
 )
@@ -42,14 +43,22 @@ func TestSimulatorRequest(t *testing.T) {
 func TestSimulatorConnectDisconnect(t *testing.T) {
 	assert := assert.Make(t)
 
+	buffer := make([]byte, 128)
 	e1, e2 := NewPipe().Endpoints()
 	sim := NewSimulator(e1)
 
 	assert(sim.modules[2]).Equal(Unknown)
 	sim.Connect(Matrix, 3)
 	assert(sim.modules[2]).Equal(Matrix)
+	time.Sleep(100 * time.Millisecond)
+	n, _ := e2.Read(buffer)
+	assert(string(buffer[:n])).Equal("c 3/matrix\r\n")
+
 	sim.Disconnect(3)
 	assert(sim.modules[2]).Equal(Unknown)
+	time.Sleep(100 * time.Millisecond)
+	n, _ = e2.Read(buffer)
+	assert(string(buffer[:n])).Equal("d 3\r\n")
 
 	e2.Close()
 }
