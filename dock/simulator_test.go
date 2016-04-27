@@ -58,7 +58,7 @@ func TestSimulatorConnectDisconnect(t *testing.T) {
 	assert(sim.modules[2]).Equal(Unknown)
 	time.Sleep(100 * time.Millisecond)
 	n, _ = e2.Read(buffer)
-	assert(string(buffer[:n])).Equal("d 3\r\n")
+	assert(string(buffer[:n])).Equal("d 3/matrix\r\n")
 
 	e2.Close()
 }
