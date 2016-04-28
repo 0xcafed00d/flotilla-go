@@ -24,13 +24,14 @@ type Client struct {
 }
 
 func structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
-	if reflect.TypeOf(moduleStruct).Kind() != reflect.Struct {
-		panic("modules supplied to Client.AquireModules not a struct")
-	}
+	//	if reflect.TypeOf(moduleStruct).Kind() != reflect.Struct {
+	//		panic("modules supplied to Client.AquireModules not a struct")
+	//	}
 
-	fields := reflect.TypeOf(moduleStruct).NumField()
+	fields := reflect.TypeOf(moduleStruct).Elem().NumField()
 	for i := 0; i < fields; i++ {
-		res = append(res, reflect.ValueOf(moduleStruct).Field(i).Interface())
+		iface := reflect.ValueOf(moduleStruct).Elem().Field(i).Addr().Interface()
+		res = append(res, iface)
 	}
 	return
 }
@@ -40,9 +41,9 @@ func (c *Client) AquireModules(moduleStruct interface{}) {
 	modules := structMembersToInterfaces(moduleStruct)
 
 	for _, m := range modules {
-		if mod, ok := m.(Module); ok {
-			mod.client = c
-			c.modules = append(c.modules, &mod)
+		if mod, ok := m.(Updateable); ok {
+			//mod.client = c
+			c.modules = append(c.modules, mod)
 		} else {
 			panic("TODO, handle not module")
 		}
