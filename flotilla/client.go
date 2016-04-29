@@ -23,22 +23,25 @@ type Client struct {
 	eventChan       chan Event
 }
 
-func structMembersToInterfaces(moduleStruct interface{}) (res []interface{}) {
-	//	if reflect.TypeOf(moduleStruct).Kind() != reflect.Struct {
-	//		panic("modules supplied to Client.AquireModules not a struct")
-	//	}
+func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) {
 
-	fields := reflect.TypeOf(moduleStruct).Elem().NumField()
+	typeof := reflect.TypeOf(moduleStructPtr)
+
+	if typeof.Kind() != reflect.Ptr && typeof.Elem().Kind() != reflect.Struct {
+		panic("modules supplied to Client.AquireModules not a struct pointer")
+	}
+
+	fields := typeof.Elem().NumField()
 	for i := 0; i < fields; i++ {
-		iface := reflect.ValueOf(moduleStruct).Elem().Field(i).Addr().Interface()
+		iface := reflect.ValueOf(moduleStructPtr).Elem().Field(i).Addr().Interface()
 		res = append(res, iface)
 	}
 	return
 }
 
-func (c *Client) AquireModules(moduleStruct interface{}) {
+func (c *Client) AquireModules(moduleStructPtr interface{}) {
 
-	modules := structMembersToInterfaces(moduleStruct)
+	modules := structMembersToInterfaces(moduleStructPtr)
 
 	for _, m := range modules {
 		if mod, ok := m.(Updateable); ok {

@@ -16,13 +16,22 @@ type RequiredModules struct {
 }
 
 func TestAquire(t *testing.T) {
+	mustPanic := assert.MustPanic
 	assert := assert.Make(t)
 
-	modules := &RequiredModules{}
+	modules := RequiredModules{}
 
-	assert(structMembersToInterfaces(modules)).Equal(
+	assert(structMembersToInterfaces(&modules)).Equal(
 		[]interface{}{&Matrix{}, &Matrix{}, &Touch{}, &Number{}, &Dial{}},
 	)
+
+	mustPanic(t, func(t *testing.T) {
+		structMembersToInterfaces(modules)
+	})
+
+	mustPanic(t, func(t *testing.T) {
+		structMembersToInterfaces(0)
+	})
 }
 
 func TestConnectDisconnect(t *testing.T) {
