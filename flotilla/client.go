@@ -44,46 +44,53 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 	modules := structMembersToInterfaces(moduleStructPtr)
 
 	for _, m := range modules {
-		if mod, ok := m.(Updateable); ok {
-			//mod.client = c
-			c.modules = append(c.modules, mod)
-		} else {
-			panic("TODO, handle not module")
+		module := reflect.ValueOf(m).Elem().FieldByName("Module")
+		if module.IsValid() {
+			if mod, ok := module.Addr().Interface().(*Module); ok {
+				mod.client = c
+				mod.address = ModuleAddress{-1, -1}
+				c.modules = append(c.modules, mod)
+			}
 		}
 	}
 }
 
 func (c *Client) Run() error {
-
 	for {
-		ev := <-c.eventChan
-		if ev.EventType == dock.EventError {
-			return ev.Error
+		err := c.processEvent()
+		if err != nil {
+			return err
 		}
+	}
+}
 
-		addr := ModuleAddress{dock: ev.dockIndex, channel: ev.Channel}
+func (c *Client) processEvent() error {
+	ev := <-c.eventChan
+	if ev.EventType == dock.EventError {
+		return ev.Error
+	}
 
-		if m, ok := c.connecteModules[addr]; ok {
-			m.Update(ev)
+	addr := ModuleAddress{dock: ev.dockIndex, channel: ev.Channel}
+
+	if m, ok := c.connecteModules[addr]; ok {
+		m.Update(ev)
+		if !m.Connected() {
+			delete(c.connecteModules, addr)
+		}
+		return nil
+	}
+
+	if ev.EventType == dock.EventConnected {
+		for _, m := range c.modules {
 			if !m.Connected() {
-				delete(c.connecteModules, addr)
-			}
-			break
-		}
-
-		if ev.EventType == dock.EventConnected {
-			for _, m := range c.modules {
-				if !m.Connected() {
-					m.Update(ev)
-					if m.Connected() {
-						c.connecteModules[addr] = m
-						break
-					}
+				m.Update(ev)
+				if m.Connected() {
+					c.connecteModules[addr] = m
+					break
 				}
 			}
 		}
 	}
-
 	return nil
 }
 

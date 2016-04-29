@@ -44,12 +44,11 @@ func TestConnectDisconnect(t *testing.T) {
 
 	var modules RequiredModules
 
+	client.AquireModules(&modules)
 	assert(modules.M1.Connected()).Equal(false)
 
-	client.AquireModules(&modules)
-
 	sim.Connect(dock.Matrix, 3)
-
+	client.processEvent()
 	assert(modules.M1.Connected()).Equal(true)
 
 	e1.Close()
