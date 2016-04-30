@@ -16,11 +16,11 @@ type Event struct {
 }
 
 type Client struct {
-	ports           []io.ReadWriteCloser
-	docks           []*dock.Dock
-	connecteModules map[ModuleAddress]Updateable
-	modules         []Updateable
-	eventChan       chan Event
+	ports            []io.ReadWriteCloser
+	docks            []*dock.Dock
+	connectedModules map[ModuleAddress]Updateable
+	requestedModules []Updateable
+	eventChan        chan Event
 }
 
 func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) {
@@ -51,7 +51,7 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 				mod.address = ModuleAddress{-1, -1}
 				if t, ok := reflect.ValueOf(m).Interface().(Typed); ok {
 					mod.moduleType = t.Type()
-					c.modules = append(c.modules, mod)
+					c.requestedModules = append(c.requestedModules, mod)
 				}
 			}
 		}
@@ -75,20 +75,20 @@ func (c *Client) processEvent() error {
 
 	addr := ModuleAddress{dock: ev.dockIndex, channel: ev.Channel}
 
-	if m, ok := c.connecteModules[addr]; ok {
+	if m, ok := c.connectedModules[addr]; ok {
 		m.Update(ev)
 		if !m.Connected() {
-			delete(c.connecteModules, addr)
+			delete(c.connectedModules, addr)
 		}
 		return nil
 	}
 
 	if ev.EventType == dock.EventConnected {
-		for _, m := range c.modules {
+		for _, m := range c.requestedModules {
 			if !m.Connected() {
 				m.Update(ev)
 				if m.Connected() {
-					c.connecteModules[addr] = m
+					c.connectedModules[addr] = m
 					break
 				}
 			}
@@ -107,7 +107,7 @@ func (c *Client) Close() {
 func makeClient() *Client {
 	client := Client{}
 	client.eventChan = make(chan Event, 100)
-	client.connecteModules = make(map[ModuleAddress]Updateable)
+	client.connectedModules = make(map[ModuleAddress]Updateable)
 	return &client
 }
 
@@ -149,8 +149,13 @@ func ConnectToDocksRaw(ports ...io.ReadWriteCloser) (*Client, error) {
 	// common client event chan along with source dock index
 	for i, d := range client.docks {
 		go func(d *dock.Dock, dockIndex int) {
-			ev := <-d.Events
-			client.eventChan <- Event{ev, dockIndex}
+			for {
+				ev := <-d.Events
+				client.eventChan <- Event{ev, dockIndex}
+				if ev.EventType == dock.EventError {
+					return
+				}
+			}
 		}(d, i)
 	}
 

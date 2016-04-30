@@ -51,5 +51,9 @@ func TestConnectDisconnect(t *testing.T) {
 	client.processEvent()
 	assert(modules.M1.Connected()).Equal(true)
 
+	sim.Disconnect(3)
+	client.processEvent()
+	assert(modules.M1.Connected()).Equal(false)
+
 	e1.Close()
 }
