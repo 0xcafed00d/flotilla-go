@@ -56,4 +56,6 @@ func TestConnectDisconnect(t *testing.T) {
 	assert(modules.M1.Connected()).Equal(false)
 
 	e1.Close()
+
+	assert(client.processEvent()).HasError()
 }
