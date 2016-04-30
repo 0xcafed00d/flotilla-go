@@ -26,7 +26,3 @@ func (m *Module) Update(ev Event) {
 func (m *Module) Connected() bool {
 	return m.address.channel != -1
 }
-
-func (m *Module) Type() dock.ModuleType {
-	return m.moduleType
-}
