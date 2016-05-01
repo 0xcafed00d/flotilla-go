@@ -27,7 +27,7 @@ func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) 
 
 	typeof := reflect.TypeOf(moduleStructPtr)
 
-	if typeof.Kind() != reflect.Ptr && typeof.Elem().Kind() != reflect.Struct {
+	if typeof.Kind() != reflect.Ptr || typeof.Elem().Kind() != reflect.Struct {
 		panic("modules supplied to Client.AquireModules not a struct pointer")
 	}
 
