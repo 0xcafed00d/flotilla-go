@@ -48,7 +48,6 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 		if module.IsValid() {
 			if mod, ok := module.Addr().Interface().(*Module); ok {
 				mod.client = c
-				mod.address = ModuleAddress{-1, -1}
 				if t, ok := reflect.ValueOf(m).Interface().(Typed); ok {
 					mod.moduleType = t.Type()
 					c.requestedModules = append(c.requestedModules, mod)
