@@ -15,6 +15,33 @@ type RequiredModules struct {
 	Dial
 }
 
+func TestModule(t *testing.T) {
+	assert := assert.Make(t)
+
+	isCalled := false
+	m := Module{}
+
+	m.moduleType = dock.Slider
+	ev := Event{}
+	ev.ModuleType = dock.Slider
+	ev.Params = []int{100}
+
+	m.Update(ev)
+	assert(isCalled).Equal(false)
+
+	m.OnUpdate(func(params []int) {
+		isCalled = true
+	})
+
+	m.Update(ev)
+	assert(isCalled).Equal(true)
+
+	m.OnUpdate(nil)
+	isCalled = false
+	m.Update(ev)
+	assert(isCalled).Equal(false)
+}
+
 func TestAquire(t *testing.T) {
 	mustPanic := assert.MustPanic
 	assert := assert.Make(t)
