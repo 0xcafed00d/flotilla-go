@@ -25,6 +25,9 @@ func TestModule(t *testing.T) {
 	ev := Event{}
 	ev.ModuleType = dock.Slider
 	ev.Params = []int{100}
+	ev.EventType = dock.EventUpdate
+	ev.dockIndex = 1
+	ev.Channel = 2
 
 	m.Update(ev)
 	assert(isCalled).Equal(false)

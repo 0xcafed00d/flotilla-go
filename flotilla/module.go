@@ -21,14 +21,16 @@ func (m *Module) OnUpdate(f UpdateFunc) {
 
 func (m *Module) Update(ev Event) {
 	if ev.ModuleType == m.moduleType {
-		if ev.EventType == dock.EventConnected {
+		switch ev.EventType {
+		case dock.EventConnected:
 			m.address = &ModuleAddress{ev.dockIndex, ev.Channel}
-		} else if ev.EventType == dock.EventDisconnected {
+		case dock.EventDisconnected:
 			m.address = nil
-		} else {
+		case dock.EventUpdate:
 			if m.updateFunc != nil {
 				m.updateFunc(ev.Params)
 			}
+
 		}
 	}
 }
