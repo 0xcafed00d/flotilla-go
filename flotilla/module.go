@@ -30,7 +30,6 @@ func (m *Module) Update(ev Event) {
 			if m.updateFunc != nil {
 				m.updateFunc(ev.Params)
 			}
-
 		}
 	}
 }

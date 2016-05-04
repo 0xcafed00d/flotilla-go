@@ -15,7 +15,30 @@ type RequiredModules struct {
 	Dial
 }
 
-func TestModule(t *testing.T) {
+func TestModule1(t *testing.T) {
+	assert := assert.Make(t)
+
+	m := Module{}
+
+	m.moduleType = dock.Slider
+
+	ev := Event{}
+	ev.ModuleType = dock.Slider
+	ev.Params = []int{100}
+	ev.EventType = dock.EventConnected
+	ev.dockIndex = 1
+	ev.Channel = 2
+
+	m.Update(ev)
+	assert(m.address).NotNil()
+	assert(m.address).Equal(ModuleAddress{dock: ev.dockIndex, channel: ev.Channel})
+
+	ev.EventType = dock.EventDisconnected
+	m.Update(ev)
+	assert(m.address).IsNil()
+}
+
+func TestModule2(t *testing.T) {
 	assert := assert.Make(t)
 
 	isCalled := false
