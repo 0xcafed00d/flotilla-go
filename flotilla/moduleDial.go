@@ -12,6 +12,6 @@ func (m *Dial) Type() dock.ModuleType {
 
 func (m *Dial) OnChange(f func(value int)) {
 	m.OnUpdate(func(params []int) {
-
+		f(Map(params[0], 0, 1023, 0, 1000))
 	})
 }
