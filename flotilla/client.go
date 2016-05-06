@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"time"
 
 	"github.com/simulatedsimian/flotilla/dock"
 	"github.com/tarm/serial"
@@ -21,6 +22,7 @@ type Client struct {
 	connectedModules map[ModuleAddress]Updateable
 	requestedModules []Updateable
 	eventChan        chan Event
+	ticker           *time.Ticker
 }
 
 func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) {
@@ -59,15 +61,32 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 
 func (c *Client) Run() error {
 	for {
-		err := c.processEvent()
+		err := c.waitForEvent()
 		if err != nil {
 			return err
 		}
 	}
 }
 
-func (c *Client) processEvent() error {
-	ev := <-c.eventChan
+func (c *Client) waitForEvent() error {
+	if c.ticker != nil {
+		select {
+		case ev := <-c.eventChan:
+			return c.handleEvent(ev)
+		case t := <-c.ticker.C:
+			c.handleTick(t)
+		}
+	} else {
+		return c.handleEvent(<-c.eventChan)
+	}
+	return nil
+}
+
+func (c *Client) handleTick(t time.Time) {
+}
+
+func (c *Client) handleEvent(ev Event) error {
+
 	if ev.EventType == dock.EventError {
 		return ev.Error
 	}

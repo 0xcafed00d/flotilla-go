@@ -101,14 +101,14 @@ func TestConnectDisconnect(t *testing.T) {
 	assert(modules.M1.Connected()).Equal(false)
 
 	sim.Connect(dock.Matrix, 3)
-	client.processEvent()
+	client.waitForEvent()
 	assert(modules.M1.Connected()).Equal(true)
 
 	sim.Disconnect(3)
-	client.processEvent()
+	client.waitForEvent()
 	assert(modules.M1.Connected()).Equal(false)
 
 	e1.Close()
 
-	assert(client.processEvent()).HasError()
+	assert(client.waitForEvent()).HasError()
 }
