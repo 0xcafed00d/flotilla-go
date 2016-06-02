@@ -59,6 +59,28 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 	}
 }
 
+func (c *Client) WaitForModules(moduleStructPtr interface{}) {
+	modules := structMembersToInterfaces(moduleStructPtr)
+
+	for {
+		for _, d := range c.docks {
+			d.SendDockCommand('e')
+		}
+		time.Sleep(500 * time.Millisecond)
+		unconnected := false
+		for _, m := range modules {
+			if u, ok := reflect.ValueOf(m).Interface().(Updateable); ok {
+				if !u.Connected() {
+					unconnected = true
+				}
+			}
+		}
+		if !unconnected {
+			return
+		}
+	}
+}
+
 func (c *Client) Run() error {
 	for {
 		err := c.waitForEvent()
