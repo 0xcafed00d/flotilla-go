@@ -23,6 +23,7 @@ type Client struct {
 	requestedModules []Module
 	eventChan        chan Event
 	ticker           *time.Ticker
+	tickFunc         TickFunc
 }
 
 func structMembersToModules(moduleStructPtr interface{}) (res []Module) {
@@ -52,13 +53,14 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 	}
 }
 
-func (c *Client) Run() error {
+func (c *Client) Run(tickTime time.Duration) error {
 	time.Sleep(250 * time.Millisecond)
 	for _, dock := range c.docks {
 		dock.SendDockCommand('e')
 	}
 	time.Sleep(250 * time.Millisecond)
 
+	c.ticker = time.NewTicker(tickTime)
 	for {
 		err := c.waitForEvent()
 		if err != nil {
@@ -68,20 +70,25 @@ func (c *Client) Run() error {
 }
 
 func (c *Client) waitForEvent() error {
-	if c.ticker != nil {
-		select {
-		case ev := <-c.eventChan:
-			return c.handleEvent(ev)
-		case t := <-c.ticker.C:
-			c.handleTick(t)
-		}
-	} else {
-		return c.handleEvent(<-c.eventChan)
+	select {
+	case ev := <-c.eventChan:
+		return c.handleEvent(ev)
+	case t := <-c.ticker.C:
+		c.handleTick(t)
 	}
 	return nil
 }
 
+type TickFunc func(t time.Time)
+
+func (c *Client) OnTick(tf TickFunc) {
+	c.tickFunc = tf
+}
+
 func (c *Client) handleTick(t time.Time) {
+	if c.tickFunc != nil {
+		c.tickFunc(t)
+	}
 }
 
 func (c *Client) handleEvent(ev Event) error {

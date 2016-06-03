@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/simulatedsimian/flotilla/flotilla"
 )
@@ -27,5 +28,5 @@ func main() {
 	client.AquireModules(&modules)
 
 	// go!!
-	client.Run()
+	client.Run(time.Millisecond * 50)
 }
