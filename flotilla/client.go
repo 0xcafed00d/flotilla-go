@@ -3,7 +3,6 @@ package flotilla
 import (
 	"fmt"
 	"io"
-	"log"
 	"reflect"
 	"time"
 
@@ -26,7 +25,7 @@ type Client struct {
 	ticker           *time.Ticker
 }
 
-func structMembersToInterfaces(moduleStructPtr interface{}) (res []Module) {
+func structMembersToModules(moduleStructPtr interface{}) (res []Module) {
 
 	typeof := reflect.TypeOf(moduleStructPtr)
 
@@ -46,34 +45,20 @@ func structMembersToInterfaces(moduleStructPtr interface{}) (res []Module) {
 
 func (c *Client) AquireModules(moduleStructPtr interface{}) {
 
-	modules := structMembersToInterfaces(moduleStructPtr)
+	modules := structMembersToModules(moduleStructPtr)
 	for _, m := range modules {
 		m.Init(c, m.Type())
 		c.requestedModules = append(c.requestedModules, m)
 	}
 }
 
-func (c *Client) WaitForModules(moduleStructPtr interface{}) {
-	for {
-		for _, d := range c.docks {
-			d.SendDockCommand('e')
-		}
-		time.Sleep(500 * time.Millisecond)
-		unconnected := false
-		for _, m := range c.requestedModules {
-			c.waitForEvent()
-			log.Println(m.Connected())
-			if !m.Connected() {
-				unconnected = true
-			}
-		}
-		if !unconnected {
-			return
-		}
-	}
-}
-
 func (c *Client) Run() error {
+	time.Sleep(250 * time.Millisecond)
+	for _, dock := range c.docks {
+		dock.SendDockCommand('e')
+	}
+	time.Sleep(250 * time.Millisecond)
+
 	for {
 		err := c.waitForEvent()
 		if err != nil {

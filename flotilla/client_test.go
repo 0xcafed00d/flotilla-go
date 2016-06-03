@@ -74,16 +74,16 @@ func TestAquire(t *testing.T) {
 
 	modules := RequiredModules{}
 
-	assert(structMembersToInterfaces(&modules)).Equal(
+	assert(structMembersToModules(&modules)).Equal(
 		[]interface{}{&Matrix{}, &Matrix{}, &Touch{}, &Number{}, &Dial{}},
 	)
 
 	mustPanic(t, func(t *testing.T) {
-		structMembersToInterfaces(modules)
+		structMembersToModules(modules)
 	})
 
 	mustPanic(t, func(t *testing.T) {
-		structMembersToInterfaces(0)
+		structMembersToModules(0)
 	})
 }
 
