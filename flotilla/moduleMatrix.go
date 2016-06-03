@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Matrix struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Matrix) Type() dock.ModuleType {

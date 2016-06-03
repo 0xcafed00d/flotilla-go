@@ -6,20 +6,25 @@ type ModuleAddress struct {
 	dock, channel int
 }
 
-type Module struct {
+type ModuleCommon struct {
 	address    *ModuleAddress
 	moduleType dock.ModuleType
 	client     *Client
 	updateFunc UpdateFunc
 }
 
+func (m *ModuleCommon) Init(client *Client, t dock.ModuleType) {
+	m.client = client
+	m.moduleType = t
+}
+
 type UpdateFunc func(params []int)
 
-func (m *Module) OnUpdate(f UpdateFunc) {
+func (m *ModuleCommon) OnUpdate(f UpdateFunc) {
 	m.updateFunc = f
 }
 
-func (m *Module) Update(ev Event) {
+func (m *ModuleCommon) Update(ev Event) {
 	addr := ModuleAddress{ev.dockIndex, ev.Channel}
 	if ev.ModuleType == m.moduleType {
 		switch ev.EventType {
@@ -37,6 +42,6 @@ func (m *Module) Update(ev Event) {
 	}
 }
 
-func (m *Module) Connected() bool {
+func (m *ModuleCommon) Connected() bool {
 	return m.address != nil
 }

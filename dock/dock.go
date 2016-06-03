@@ -3,6 +3,7 @@ package dock
 import (
 	"fmt"
 	"io"
+	"log"
 	"sync"
 )
 
@@ -26,6 +27,9 @@ func ConnectDock(port io.ReadWriter) *Dock {
 }
 
 func (d *Dock) handleEvent(ev Event) {
+
+	log.Println(ev)
+
 	if ev.EventType == EventDisconnected {
 		d.RWMutex.Lock()
 		d.moduleTypes[ev.Channel] = Unknown

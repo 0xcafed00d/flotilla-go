@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Motion struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Motion) Type() dock.ModuleType {

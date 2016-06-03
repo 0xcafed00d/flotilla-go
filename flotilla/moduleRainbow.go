@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Rainbow struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Rainbow) Type() dock.ModuleType {

@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Touch struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Touch) Type() dock.ModuleType {

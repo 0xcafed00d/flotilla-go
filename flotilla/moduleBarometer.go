@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Barometer struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Barometer) Type() dock.ModuleType {

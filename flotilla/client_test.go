@@ -18,7 +18,7 @@ type RequiredModules struct {
 func TestModule1(t *testing.T) {
 	assert := assert.Make(t)
 
-	m := Module{}
+	m := ModuleCommon{}
 
 	m.moduleType = dock.Slider
 
@@ -42,7 +42,7 @@ func TestModule2(t *testing.T) {
 	assert := assert.Make(t)
 
 	isCalled := false
-	m := Module{}
+	m := ModuleCommon{}
 
 	m.moduleType = dock.Slider
 	ev := Event{}

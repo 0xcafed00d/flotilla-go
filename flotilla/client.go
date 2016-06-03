@@ -3,6 +3,7 @@ package flotilla
 import (
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 	"time"
 
@@ -19,13 +20,13 @@ type Event struct {
 type Client struct {
 	ports            []io.ReadWriteCloser
 	docks            []*dock.Dock
-	connectedModules map[ModuleAddress]Updateable
-	requestedModules []Updateable
+	connectedModules map[ModuleAddress]Module
+	requestedModules []Module
 	eventChan        chan Event
 	ticker           *time.Ticker
 }
 
-func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) {
+func structMembersToInterfaces(moduleStructPtr interface{}) (res []Module) {
 
 	typeof := reflect.TypeOf(moduleStructPtr)
 
@@ -35,8 +36,10 @@ func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) 
 
 	fields := typeof.Elem().NumField()
 	for i := 0; i < fields; i++ {
-		iface := reflect.ValueOf(moduleStructPtr).Elem().Field(i).Addr().Interface()
-		res = append(res, iface)
+		iface, ok := reflect.ValueOf(moduleStructPtr).Elem().Field(i).Addr().Interface().(Module)
+		if ok {
+			res = append(res, iface)
+		}
 	}
 	return
 }
@@ -44,35 +47,24 @@ func structMembersToInterfaces(moduleStructPtr interface{}) (res []interface{}) 
 func (c *Client) AquireModules(moduleStructPtr interface{}) {
 
 	modules := structMembersToInterfaces(moduleStructPtr)
-
 	for _, m := range modules {
-		module := reflect.ValueOf(m).Elem().FieldByName("Module")
-		if module.IsValid() {
-			if mod, ok := module.Addr().Interface().(*Module); ok {
-				mod.client = c
-				if t, ok := reflect.ValueOf(m).Interface().(Typed); ok {
-					mod.moduleType = t.Type()
-					c.requestedModules = append(c.requestedModules, mod)
-				}
-			}
-		}
+		m.Init(c, m.Type())
+		c.requestedModules = append(c.requestedModules, m)
 	}
 }
 
 func (c *Client) WaitForModules(moduleStructPtr interface{}) {
-	modules := structMembersToInterfaces(moduleStructPtr)
-
 	for {
 		for _, d := range c.docks {
 			d.SendDockCommand('e')
 		}
 		time.Sleep(500 * time.Millisecond)
 		unconnected := false
-		for _, m := range modules {
-			if u, ok := reflect.ValueOf(m).Interface().(Updateable); ok {
-				if !u.Connected() {
-					unconnected = true
-				}
+		for _, m := range c.requestedModules {
+			c.waitForEvent()
+			log.Println(m.Connected())
+			if !m.Connected() {
+				unconnected = true
 			}
 		}
 		if !unconnected {
@@ -147,7 +139,7 @@ func (c *Client) Close() {
 func makeClient() *Client {
 	client := Client{}
 	client.eventChan = make(chan Event, 100)
-	client.connectedModules = make(map[ModuleAddress]Updateable)
+	client.connectedModules = make(map[ModuleAddress]Module)
 	return &client
 }
 

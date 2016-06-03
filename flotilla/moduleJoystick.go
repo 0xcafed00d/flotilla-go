@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Joystick struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Joystick) Type() dock.ModuleType {

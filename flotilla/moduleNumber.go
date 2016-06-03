@@ -3,7 +3,7 @@ package flotilla
 import "github.com/simulatedsimian/flotilla/dock"
 
 type Number struct {
-	Module
+	ModuleCommon
 }
 
 func (m *Number) Type() dock.ModuleType {
