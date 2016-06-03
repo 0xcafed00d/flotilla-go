@@ -27,6 +27,10 @@ func main() {
 	// wait for all modules to be connected
 	client.AquireModules(&modules)
 
+	client.OnTick(func(t time.Time) {
+		fmt.Println(t)
+	})
+
 	// go!!
 	client.Run(time.Millisecond * 50)
 }

@@ -89,6 +89,12 @@ func (c *Client) handleTick(t time.Time) {
 	if c.tickFunc != nil {
 		c.tickFunc(t)
 	}
+
+	for addr, mod := range c.connectedModules {
+		if s, ok := mod.(Setable); ok {
+			s.Set(c.docks[addr.dock])
+		}
+	}
 }
 
 func (c *Client) handleEvent(ev Event) error {

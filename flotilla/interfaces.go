@@ -10,5 +10,5 @@ type Module interface {
 }
 
 type Setable interface {
-	Set(params ...int) error
+	Set(d *dock.Dock) error
 }
