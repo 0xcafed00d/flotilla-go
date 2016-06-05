@@ -42,3 +42,42 @@ func (m *Matrix) Plot(x, y, v int) {
 
 	m.dirty = true
 }
+
+func (m *Matrix) ScrollUp(fill int) {
+	copy(m.buffer[:], m.buffer[1:])
+	m.buffer[7] = byte(fill)
+	m.dirty = true
+}
+
+func (m *Matrix) ScrollDown(fill int) {
+	copy(m.buffer[1:], m.buffer[:])
+	m.buffer[0] = byte(fill)
+	m.dirty = true
+}
+
+func (m *Matrix) ScrollLeft(fill int) {
+	for i := range m.buffer {
+
+	}
+	m.dirty = true
+}
+
+func (m *Matrix) ScrollRight(fill int) {
+	m.dirty = true
+}
+
+func (m *Matrix) RollUp() {
+	m.dirty = true
+}
+
+func (m *Matrix) RollDown() {
+	m.dirty = true
+}
+
+func (m *Matrix) RollLeft() {
+	m.dirty = true
+}
+
+func (m *Matrix) RollRight() {
+	m.dirty = true
+}
