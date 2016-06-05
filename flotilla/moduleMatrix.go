@@ -31,7 +31,7 @@ func (m *Matrix) SetBrightness(b int) {
 }
 
 func (m *Matrix) Plot(x, y, v int) {
-	x = x & 7
+	x = 7 - x&7
 	y = y & 7
 
 	if v == 0 {
@@ -43,26 +43,26 @@ func (m *Matrix) Plot(x, y, v int) {
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollUp(fill int) {
+func (m *Matrix) ScrollRight(fill int) {
 	copy(m.buffer[:], m.buffer[1:])
 	m.buffer[7] = byte(fill)
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollDown(fill int) {
+func (m *Matrix) ScrollLeft(fill int) {
 	copy(m.buffer[1:], m.buffer[:])
 	m.buffer[0] = byte(fill)
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollLeft(fill int) {
+func (m *Matrix) ScrollUp(fill int) {
 	for i := range m.buffer {
-
+		_ = i
 	}
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollRight(fill int) {
+func (m *Matrix) ScrollDown(fill int) {
 	m.dirty = true
 }
 
