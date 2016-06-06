@@ -10,6 +10,11 @@ type Matrix struct {
 	dirty      bool
 }
 
+func (m *Matrix) Construct() {
+	m.brightness = 64
+	m.dirty = true
+}
+
 func (m *Matrix) Set(d *dock.Dock) error {
 	if m.dirty && m.address != nil {
 		m.dirty = false

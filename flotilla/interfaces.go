@@ -9,6 +9,18 @@ type Module interface {
 	Init(client *Client, t dock.ModuleType)
 }
 
+type Constructable interface {
+	Construct()
+}
+
 type Setable interface {
 	Set(d *dock.Dock) error
+}
+
+type AnalogValue interface {
+	GetValue() int
+}
+
+type AnalogControllable interface {
+	SetValue(value int)
 }

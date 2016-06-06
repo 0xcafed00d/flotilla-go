@@ -49,6 +49,9 @@ func (c *Client) AquireModules(moduleStructPtr interface{}) {
 	modules := structMembersToModules(moduleStructPtr)
 	for _, m := range modules {
 		m.Init(c, m.Type())
+		if ctor, ok := m.(Constructable); ok {
+			ctor.Construct()
+		}
 		c.requestedModules = append(c.requestedModules, m)
 	}
 }
