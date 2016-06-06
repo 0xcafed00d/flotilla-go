@@ -55,14 +55,17 @@ func (m *Matrix) ScrollLeft(fill int) {
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollUp(fill int) {
+func (m *Matrix) ScrollDown(fill int) {
 	for i := range m.buffer {
-		_ = i
+		m.buffer[i] = (m.buffer[i] << 1) | (byte(fill)>>byte(7-i))&1
 	}
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollDown(fill int) {
+func (m *Matrix) ScrollUp(fill int) {
+	for i := range m.buffer {
+		m.buffer[i] = (m.buffer[i] >> 1) | ((byte(fill)>>byte(7-i))&1)<<7
+	}
 	m.dirty = true
 }
 

@@ -30,7 +30,7 @@ func main() {
 	flicker := 0
 
 	client.OnTick(func(t time.Time) {
-		modules.ScrollLeft(flicker)
+		modules.ScrollUp(flicker)
 		flicker++
 	})
 
