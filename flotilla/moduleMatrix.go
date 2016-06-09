@@ -48,6 +48,10 @@ func (m *Matrix) Plot(x, y, v int) {
 	m.dirty = true
 }
 
+func (m *Matrix) Clear() {
+	m.buffer = [8]byte{}
+}
+
 func (m *Matrix) ScrollRight(fill int) {
 	copy(m.buffer[:], m.buffer[1:])
 	m.buffer[7] = byte(fill)
