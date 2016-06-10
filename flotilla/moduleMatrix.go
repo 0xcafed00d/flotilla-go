@@ -48,6 +48,19 @@ func (m *Matrix) Plot(x, y, v int) {
 	m.dirty = true
 }
 
+func (m *Matrix) DrawBarGraph(values []int, min, max int) {
+	m.Clear()
+
+	bars := MinInt(8, len(values))
+
+	for i := 0; i < bars; i++ {
+		y := Map(values[i], min, max, 0, 7)
+		for n := 0; n <= y; n++ {
+			m.Plot(i, 7-n, 1)
+		}
+	}
+}
+
 func (m *Matrix) Clear() {
 	m.buffer = [8]byte{}
 }

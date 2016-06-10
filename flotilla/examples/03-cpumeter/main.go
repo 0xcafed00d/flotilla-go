@@ -11,7 +11,7 @@ import (
 // build a struct that has all the modules you need.
 var modules struct {
 	flotilla.Matrix
-	flotilla.Dial
+	flotilla.Touch
 }
 
 func main() {
@@ -25,17 +25,18 @@ func main() {
 	usage := cpuusage.Usage{}
 	modules.SetBrightness(2)
 
+	modules.Touch.OnChange(func(button int, pressed bool) {
+		log.Println(button, pressed)
+	})
+
 	client.OnTick(func(t time.Time) {
 		if err := usage.Measure(); err != nil {
 			log.Println(err)
 		} else {
-			modules.Matrix.Clear()
-			for i, v := range usage.Cores {
-				modules.Matrix.Plot(i, flotilla.Map(v, 0, 100, 0, 7), 1)
-			}
+			modules.Matrix.DrawBarGraph(usage.Cores, 0, 100)
 		}
 	})
 
 	// go!!
-	client.Run(time.Millisecond * 100)
+	client.Run(time.Millisecond * 250)
 }
