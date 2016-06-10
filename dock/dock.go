@@ -54,7 +54,6 @@ func (d *Dock) reader() {
 		if n > 0 {
 			msgs := splitter(buffer[:n])
 			for _, msg := range msgs {
-				log.Println(msg)
 				d.handleEvent(msgToEvent(msg))
 			}
 		}
