@@ -11,7 +11,7 @@ const (
 	Light
 	Colour
 	Dial
-	Barometer
+	Weather
 	Number
 	Motor
 	Rainbow
@@ -28,7 +28,7 @@ func init() {
 	modules["light"] = Light
 	modules["colour"] = Colour
 	modules["dial"] = Dial
-	modules["barometer"] = Barometer
+	modules["weather"] = Weather
 	modules["number"] = Number
 	modules["motor"] = Motor
 	modules["rainbow"] = Rainbow
@@ -57,8 +57,8 @@ func (m ModuleType) String() string {
 		return "colour"
 	case Dial:
 		return "dial"
-	case Barometer:
-		return "barometer"
+	case Weather:
+		return "weather"
 	case Number:
 		return "number"
 	case Motor:
