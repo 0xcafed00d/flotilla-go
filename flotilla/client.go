@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/simulatedsimian/flotilla/dock"
+	"github.com/simulatedsimian/flotilla-go/dock"
 	"github.com/tarm/serial"
 )
 

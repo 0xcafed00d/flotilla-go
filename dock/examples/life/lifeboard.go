@@ -3,7 +3,7 @@ package main
 import (
 	"math/rand"
 
-	"github.com/simulatedsimian/flotilla/dock"
+	"github.com/simulatedsimian/flotilla-go/dock"
 )
 
 type LifeBoard [8]byte

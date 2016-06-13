@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/simulatedsimian/assert"
-	"github.com/simulatedsimian/flotilla/dock"
+	"github.com/simulatedsimian/flotilla-go/dock"
 )
 
 type RequiredModules struct {

@@ -1,6 +1,6 @@
 package flotilla
 
-import "github.com/simulatedsimian/flotilla/dock"
+import "github.com/simulatedsimian/flotilla-go/dock"
 
 type Matrix struct {
 	ModuleCommon

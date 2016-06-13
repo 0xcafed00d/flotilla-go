@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/simulatedsimian/flotilla/flotilla"
+	"github.com/simulatedsimian/flotilla-go/flotilla"
 )
 
 // build a struct that has all the modules you need.
