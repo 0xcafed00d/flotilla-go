@@ -12,6 +12,7 @@ import (
 var modules struct {
 	flotilla.Matrix
 	flotilla.Number
+	flotilla.Rainbow
 }
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 		} else {
 			modules.Matrix.DrawBarGraph(usage.Cores, 0, 100)
 			modules.Number.SetInteger(usage.Overall)
+			modules.Rainbow.SetAll(flotilla.RGB{8, 8, 0})
 		}
 	})
 
