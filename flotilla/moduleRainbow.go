@@ -2,10 +2,6 @@ package flotilla
 
 import "github.com/simulatedsimian/flotilla-go/dock"
 
-type RGB struct {
-	R, G, B byte
-}
-
 type Rainbow struct {
 	ModuleCommon
 
@@ -40,4 +36,15 @@ func (m *Rainbow) SetAll(rgb RGB) {
 	m.dirty = true
 	m.allsame = true
 	m.colours[0] = rgb
+}
+
+func (m *Rainbow) SetBlend(rgb1, rgb2 RGB) {
+	m.dirty = true
+	m.allsame = false
+	m.colours[0] = rgb1
+	m.colours[4] = rgb2
+
+	m.colours[2] = Blend(rgb1, rgb2)
+	m.colours[1] = Blend(rgb1, m.colours[2])
+	m.colours[3] = Blend(rgb2, m.colours[2])
 }

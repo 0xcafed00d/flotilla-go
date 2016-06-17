@@ -32,7 +32,7 @@ func main() {
 		} else {
 			modules.Matrix.DrawBarGraph(usage.Cores, 0, 100)
 			modules.Number.SetInteger(usage.Overall)
-			modules.Rainbow.SetAll(flotilla.RGB{8, 8, 0})
+			modules.Rainbow.SetBlend(flotilla.RGB{255, 0, 0}, flotilla.RGB{0, 0, 255})
 		}
 	})
 
