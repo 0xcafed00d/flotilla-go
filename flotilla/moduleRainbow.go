@@ -48,3 +48,14 @@ func (m *Rainbow) SetBlend(rgb1, rgb2 RGB) {
 	m.colours[1] = Blend(rgb1, m.colours[2])
 	m.colours[3] = Blend(rgb2, m.colours[2])
 }
+
+func (m *Rainbow) SetBlend3(rgb1, rgb2, rgb3 RGB) {
+	m.dirty = true
+	m.allsame = false
+	m.colours[0] = rgb1
+	m.colours[2] = rgb2
+	m.colours[4] = rgb3
+
+	m.colours[1] = Blend(rgb1, rgb2)
+	m.colours[3] = Blend(rgb2, rgb3)
+}

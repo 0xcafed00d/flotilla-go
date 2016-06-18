@@ -24,7 +24,7 @@ func main() {
 	client.AquireModules(&modules)
 
 	usage := cpuusage.Usage{}
-	modules.SetBrightness(2)
+	modules.Matrix.SetBrightness(2)
 
 	client.OnTick(func(t time.Time) {
 		if err := usage.Measure(); err != nil {
@@ -32,7 +32,8 @@ func main() {
 		} else {
 			modules.Matrix.DrawBarGraph(usage.Cores, 0, 100)
 			modules.Number.SetInteger(usage.Overall)
-			modules.Rainbow.SetBlend(flotilla.RGB{255, 0, 0}, flotilla.RGB{0, 0, 255})
+			modules.Rainbow.SetBlend3(flotilla.RGB{255, 0, 0}, flotilla.RGB{0, 255, 0}, flotilla.RGB{0, 0, 255})
+			modules.Rainbow.SetBlend(flotilla.RGB{255, 0, 0}, flotilla.RGB{0, 255, 0})
 		}
 	})
 
