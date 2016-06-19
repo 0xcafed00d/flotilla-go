@@ -1,7 +1,6 @@
 package flotilla
 
 func Limit(val, min, max int) int {
-
 	if val < min {
 		return min
 	}
@@ -41,4 +40,12 @@ func MinInt(vals ...int) (min int) {
 		}
 	}
 	return
+}
+
+func LerpFloat(a, b, t float64) float64 {
+	return a + t*(b-a)
+}
+
+func LerpInt(a, b int, t float64) int {
+	return int(LerpFloat(float64(a), float64(b), t))
 }
