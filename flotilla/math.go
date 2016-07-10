@@ -10,6 +10,16 @@ func Limit(val, min, max int) int {
 	return val
 }
 
+func LimitF(val, min, max float64) float64 {
+	if val < min {
+		return min
+	}
+	if val > max {
+		return max
+	}
+	return val
+}
+
 func Map(val, fromMin, fromMax, toMin, toMax int) int {
 	fromMax++
 	toMax++
@@ -43,6 +53,7 @@ func MinInt(vals ...int) (min int) {
 }
 
 func LerpFloat(a, b, t float64) float64 {
+	t = LimitF(t, 0.0, 1.0)
 	return a + t*(b-a)
 }
 

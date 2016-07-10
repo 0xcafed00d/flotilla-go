@@ -7,7 +7,7 @@ type Rainbow struct {
 
 	colours [5]RGB
 	dirty   bool
-	allsame bool
+	allSame bool
 }
 
 func (m *Rainbow) Type() dock.ModuleType {
@@ -16,7 +16,7 @@ func (m *Rainbow) Type() dock.ModuleType {
 
 func (m *Rainbow) Set(d *dock.Dock) error {
 	if m.dirty {
-		if m.allsame {
+		if m.allSame {
 			return d.SetModuleData(m.address.channel, m.Type(),
 				int(m.colours[0].R), int(m.colours[0].G), int(m.colours[0].B))
 		} else {
@@ -32,15 +32,21 @@ func (m *Rainbow) Set(d *dock.Dock) error {
 	return nil
 }
 
-func (m *Rainbow) SetAll(rgb RGB) {
+func (m *Rainbow) SetSame(rgb RGB) {
 	m.dirty = true
-	m.allsame = true
+	m.allSame = true
 	m.colours[0] = rgb
+}
+
+func (m *Rainbow) SetAll(rgb [5]RGB) {
+	m.dirty = true
+	m.allSame = true
+	m.colours = rgb
 }
 
 func (m *Rainbow) SetBlend(rgb1, rgb2 RGB) {
 	m.dirty = true
-	m.allsame = false
+	m.allSame = false
 	m.colours[0] = rgb1
 	m.colours[4] = rgb2
 
@@ -51,11 +57,26 @@ func (m *Rainbow) SetBlend(rgb1, rgb2 RGB) {
 
 func (m *Rainbow) SetBlend3(rgb1, rgb2, rgb3 RGB) {
 	m.dirty = true
-	m.allsame = false
+	m.allSame = false
 	m.colours[0] = rgb1
 	m.colours[2] = rgb2
 	m.colours[4] = rgb3
 
 	m.colours[1] = Blend(rgb1, rgb2)
 	m.colours[3] = Blend(rgb2, rgb3)
+}
+
+func (m *Rainbow) SetVU(value int) {
+	m.dirty = true
+	m.allSame = false
+
+	colour := LerpRGB(RGB{0, 255, 0}, RGB{255, 0, 0}, float64(value)/1000.0)
+
+	for i := range m.colours {
+		if i*200 < value {
+			m.colours[i] = LerpRGB(RGB{}, colour, float64(value-i*200)/1000.0)
+		} else {
+			m.colours[i] = RGB{}
+		}
+	}
 }
