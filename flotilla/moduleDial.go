@@ -4,15 +4,19 @@ import "github.com/simulatedsimian/flotilla-go/dock"
 
 type Dial struct {
 	ModuleCommon
-	value   int
-	fupdate UpdateFunc
+	value          int
+	fupdateDefault UpdateFunc
+	fupdateUser    func(value int)
 }
 
 func (m *Dial) Construct() {
-	m.fupdate = func(params []int) {
+	m.fupdateDefault = func(params []int) {
 		m.value = Map(params[0], 0, 1023, 0, 1000)
+		if m.fupdateUser != nil {
+			m.fupdateUser(m.value)
+		}
 	}
-	m.OnUpdate(m.fupdate)
+	m.OnUpdate(m.fupdateDefault)
 }
 
 func (m *Dial) Type() dock.ModuleType {
@@ -20,10 +24,7 @@ func (m *Dial) Type() dock.ModuleType {
 }
 
 func (m *Dial) OnChange(f func(value int)) {
-	m.OnUpdate(func(params []int) {
-		m.fupdate(params)
-		f(m.value)
-	})
+	m.fupdateUser = f
 }
 
 func (m *Dial) GetValue() int {
