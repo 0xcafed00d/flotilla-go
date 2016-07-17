@@ -172,6 +172,7 @@ func ConnectToDocks(serialports ...string) (*Client, error) {
 
 func ConnectToDocksRaw(ports ...io.ReadWriteCloser) (*Client, error) {
 	client := makeClient()
+	client.ticker = time.NewTicker(time.Millisecond * 250)
 
 	for _, port := range ports {
 		client.ports = append(client.ports, port)
