@@ -75,7 +75,7 @@ func TestAquire(t *testing.T) {
 	modules := RequiredModules{}
 
 	assert(structMembersToModules(&modules)).Equal(
-		[]interface{}{&Matrix{}, &Matrix{}, &Touch{}, &Number{}, &Dial{}},
+		[]Module{&Matrix{}, &Matrix{}, &Touch{}, &Number{}, &Dial{}},
 	)
 
 	mustPanic(t, func(t *testing.T) {
