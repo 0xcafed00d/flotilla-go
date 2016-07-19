@@ -40,3 +40,20 @@ func (m *Joystick) GetValue() (x, y int, button bool) {
 	button = m.button
 	return
 }
+
+func (m *Joystick) GetDirection() (dir Direction, button bool) {
+	if m.valueX < 250 {
+		dir = dir | DirLeft
+	} else if m.valueX > 750 {
+		dir = dir | DirRight
+	}
+
+	if m.valueY < 250 {
+		dir = dir | DirUp
+	} else if m.valueY > 750 {
+		dir = dir | DirDown
+	}
+
+	button = m.button
+	return
+}

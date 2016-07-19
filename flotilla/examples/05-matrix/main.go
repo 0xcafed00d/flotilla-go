@@ -24,24 +24,11 @@ func main() {
 	counter := 0
 
 	client.OnTick(func(t time.Time) {
-		x, y, _ := modules.Joystick.GetValue()
-		if x < 250 {
-			modules.Matrix.ScrollLeft(counter)
+		dir, _ := modules.Joystick.GetDirection()
+		if dir != flotilla.DirNone {
+			modules.Matrix.Scroll(dir, counter)
 			counter++
 		}
-		if x > 750 {
-			modules.Matrix.ScrollRight(counter)
-			counter++
-		}
-		if y < 250 {
-			modules.Matrix.ScrollUp(counter)
-			counter++
-		}
-		if y > 750 {
-			modules.Matrix.ScrollDown(counter)
-			counter++
-		}
-
 	})
 
 	// go!!

@@ -65,6 +65,21 @@ func (m *Matrix) Clear() {
 	m.buffer = [8]byte{}
 }
 
+func (m *Matrix) Scroll(dir Direction, fill int) {
+	if dir&DirLeft != 0 {
+		m.ScrollLeft(fill)
+	}
+	if dir&DirRight != 0 {
+		m.ScrollRight(fill)
+	}
+	if dir&DirUp != 0 {
+		m.ScrollUp(fill)
+	}
+	if dir&DirDown != 0 {
+		m.ScrollDown(fill)
+	}
+}
+
 func (m *Matrix) ScrollRight(fill int) {
 	copy(m.buffer[:], m.buffer[1:])
 	m.buffer[7] = byte(fill)
