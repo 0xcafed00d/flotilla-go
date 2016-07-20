@@ -106,6 +106,21 @@ func (m *Matrix) ScrollUp(fill int) {
 	m.dirty = true
 }
 
+func (m *Matrix) Roll(dir Direction) {
+	if dir&DirLeft != 0 {
+		m.RollLeft()
+	}
+	if dir&DirRight != 0 {
+		m.RollRight()
+	}
+	if dir&DirUp != 0 {
+		m.RollUp()
+	}
+	if dir&DirDown != 0 {
+		m.RollDown()
+	}
+}
+
 func (m *Matrix) RollUp() {
 	m.dirty = true
 }
