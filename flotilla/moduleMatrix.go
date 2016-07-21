@@ -65,6 +65,22 @@ func (m *Matrix) Clear() {
 	m.buffer = [8]byte{}
 }
 
+func (m *Matrix) GetRow(i int) byte {
+
+}
+
+func (m *Matrix) SetRow(i int, v byte) {
+
+}
+
+func (m *Matrix) GetCol(i int) byte {
+
+}
+
+func (m *Matrix) SetCol(i int, v byte) {
+
+}
+
 func (m *Matrix) Scroll(dir Direction, fill int) {
 	if dir&DirLeft != 0 {
 		m.ScrollLeft(fill)
