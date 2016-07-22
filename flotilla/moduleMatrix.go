@@ -65,20 +65,28 @@ func (m *Matrix) Clear() {
 	m.buffer = [8]byte{}
 }
 
-func (m *Matrix) GetRow(i int) byte {
-
+func (m *Matrix) GetRow(row int) byte {
+	var v byte
+	for i := range m.buffer {
+		v <<= 1
+		v |= (m.buffer[i] >> byte(7-row)) & 1
+	}
+	return v
 }
 
-func (m *Matrix) SetRow(i int, v byte) {
-
+func (m *Matrix) SetRow(row int, v byte) {
+	for i := range m.buffer {
+		v <<= 1
+		v |= (m.buffer[i] >> byte(7-row)) & 1
+	}
 }
 
-func (m *Matrix) GetCol(i int) byte {
-
+func (m *Matrix) GetCol(col int) byte {
+	return m.buffer[col]
 }
 
-func (m *Matrix) SetCol(i int, v byte) {
-
+func (m *Matrix) SetCol(col int, v byte) {
+	m.buffer[col] = v
 }
 
 func (m *Matrix) Scroll(dir Direction, fill int) {
