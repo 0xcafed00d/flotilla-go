@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/simulatedsimian/flotilla-go/flotilla"
@@ -23,10 +24,14 @@ func main() {
 
 	counter := 0
 
+	modules.Matrix.Plot(0, 0, 1)
+	modules.Matrix.Plot(0, 2, 1)
+	fmt.Println(modules.Matrix.String())
+
 	client.OnTick(func(t time.Time) {
 		dir, _ := modules.Joystick.GetDirection()
 		if dir != flotilla.DirNone {
-			modules.Matrix.Scroll(dir, counter)
+			//modules.Matrix.Scroll(dir, counter)
 			counter++
 		}
 	})

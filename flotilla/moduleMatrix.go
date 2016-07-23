@@ -1,6 +1,10 @@
 package flotilla
 
-import "github.com/simulatedsimian/flotilla-go/dock"
+import (
+	"fmt"
+
+	"github.com/simulatedsimian/flotilla-go/dock"
+)
 
 type Matrix struct {
 	ModuleCommon
@@ -13,6 +17,13 @@ type Matrix struct {
 func (m *Matrix) Construct() {
 	m.brightness = 64
 	m.dirty = true
+}
+
+func (m *Matrix) String() (s string) {
+	for i := range m.buffer {
+		s += fmt.Sprintf("%08b\n", m.buffer[i])
+	}
+	return
 }
 
 func (m *Matrix) Set(d *dock.Dock) error {
@@ -35,14 +46,14 @@ func (m *Matrix) SetBrightness(b int) {
 	m.dirty = true
 }
 
-func (m *Matrix) Plot(x, y, v int) {
-	x = 7 - x&7
-	y = y & 7
+func (m *Matrix) Plot(col, row, v int) {
+	col = 7 - col&7
+	row = row & 7
 
 	if v == 0 {
-		m.buffer[x] = m.buffer[x] & ^(1 << uint(y))
+		m.buffer[col] &= ^(1 << uint(row))
 	} else {
-		m.buffer[x] = m.buffer[x] | (1 << uint(y))
+		m.buffer[col] |= (1 << uint(row))
 	}
 
 	m.dirty = true
@@ -76,7 +87,7 @@ func (m *Matrix) GetRow(row int) byte {
 
 func (m *Matrix) SetRow(row int, v byte) {
 	for i := range m.buffer {
-		v <<= 1
+		//mask := 1 << byte(7-row)
 		v |= (m.buffer[i] >> byte(7-row)) & 1
 	}
 }
