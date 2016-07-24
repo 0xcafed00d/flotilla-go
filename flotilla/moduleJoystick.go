@@ -35,6 +35,10 @@ func (m *Joystick) OnChange(f func(valueX int, valueY int, button bool)) {
 }
 
 func (m *Joystick) GetValue() (x, y int, button bool) {
+	if !m.Connected() {
+		x, y = 500, 500
+		return
+	}
 	x = m.valueX
 	y = m.valueY
 	button = m.button
@@ -42,6 +46,10 @@ func (m *Joystick) GetValue() (x, y int, button bool) {
 }
 
 func (m *Joystick) GetDirection() (dir Direction, button bool) {
+	if !m.Connected() {
+		dir = DirNone
+		return
+	}
 	if m.valueX < 250 {
 		dir = dir | DirLeft
 	} else if m.valueX > 750 {
