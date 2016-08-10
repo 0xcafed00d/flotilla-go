@@ -59,6 +59,18 @@ func (m *Matrix) Plot(col, row, v int) {
 	m.dirty = true
 }
 
+func (m *Matrix) SetPattern(values []string) {
+	for y := range values {
+		for x, r := range values[y] {
+			if r != ' ' {
+				m.Plot(x, y, 1)
+			} else {
+				m.Plot(x, y, 0)
+			}
+		}
+	}
+}
+
 func (m *Matrix) DrawBarGraph(values []int, min, max int) {
 	m.Clear()
 

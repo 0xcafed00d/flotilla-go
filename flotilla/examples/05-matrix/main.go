@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/simulatedsimian/flotilla-go/flotilla"
@@ -20,19 +19,22 @@ func main() {
 
 	// wait for all modules to be connected
 	client.AquireModules(&modules)
-	modules.Matrix.SetBrightness(16)
+	modules.Matrix.SetBrightness(32)
 
-	counter := 0
-
-	modules.Matrix.Plot(0, 0, 1)
-	modules.Matrix.Plot(0, 2, 1)
-	fmt.Println(modules.Matrix.String())
+	modules.Matrix.SetPattern([]string{
+		"   OO   ",
+		"  OOOO  ",
+		" OOOOOO ",
+		"OO OO OO",
+		"OOOOOOOO",
+		"  O  O  ",
+		" O OO O ",
+		"O O  O O"})
 
 	client.OnTick(func(t time.Time) {
 		dir, _ := modules.Joystick.GetDirection()
 		if dir != flotilla.DirNone {
-			modules.Matrix.Scroll(dir, counter)
-			counter++
+			modules.Matrix.Scroll(dir, 0)
 		}
 	})
 
