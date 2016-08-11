@@ -34,7 +34,7 @@ func main() {
 	client.OnTick(func(t time.Time) {
 		dir, _ := modules.Joystick.GetDirection()
 		if dir != flotilla.DirNone {
-			modules.Matrix.Scroll(dir, 0)
+			modules.Matrix.Roll(dir)
 		}
 	})
 

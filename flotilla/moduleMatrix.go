@@ -112,7 +112,7 @@ func (m *Matrix) SetCol(col int, v byte) {
 	m.buffer[col] = v
 }
 
-func (m *Matrix) Scroll(dir Direction, fill int) {
+func (m *Matrix) Scroll(dir Direction, fill byte) {
 	if dir&DirLeft != 0 {
 		m.ScrollLeft(fill)
 	}
@@ -127,26 +127,26 @@ func (m *Matrix) Scroll(dir Direction, fill int) {
 	}
 }
 
-func (m *Matrix) ScrollRight(fill int) {
+func (m *Matrix) ScrollRight(fill byte) {
 	copy(m.buffer[:], m.buffer[1:])
-	m.buffer[7] = byte(fill)
+	m.buffer[7] = fill
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollLeft(fill int) {
+func (m *Matrix) ScrollLeft(fill byte) {
 	copy(m.buffer[1:], m.buffer[:])
-	m.buffer[0] = byte(fill)
+	m.buffer[0] = fill
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollDown(fill int) {
+func (m *Matrix) ScrollDown(fill byte) {
 	for i := range m.buffer {
-		m.buffer[i] = (m.buffer[i] << 1) | (byte(fill)>>byte(7-i))&1
+		m.buffer[i] = (m.buffer[i] << 1) | (fill>>byte(7-i))&1
 	}
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollUp(fill int) {
+func (m *Matrix) ScrollUp(fill byte) {
 	for i := range m.buffer {
 		m.buffer[i] = (m.buffer[i] >> 1) | ((byte(fill)>>byte(7-i))&1)<<7
 	}
@@ -169,17 +169,21 @@ func (m *Matrix) Roll(dir Direction) {
 }
 
 func (m *Matrix) RollUp() {
-	m.dirty = true
+	row := m.GetRow(7)
+	m.ScrollUp(row)
 }
 
 func (m *Matrix) RollDown() {
-	m.dirty = true
+	row := m.GetRow(0)
+	m.ScrollDown(row)
 }
 
 func (m *Matrix) RollLeft() {
-	m.dirty = true
+	col := m.GetCol(7)
+	m.ScrollLeft(col)
 }
 
 func (m *Matrix) RollRight() {
-	m.dirty = true
+	col := m.GetCol(0)
+	m.ScrollRight(col)
 }
