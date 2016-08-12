@@ -6,12 +6,15 @@ import (
 	"github.com/simulatedsimian/flotilla-go/dock"
 )
 
+type MatrixBuffer struct {
+	buffer [8]byte
+	dirty  bool
+}
+
 type Matrix struct {
 	ModuleCommon
-
-	buffer     [8]byte
+	MatrixBuffer
 	brightness byte
-	dirty      bool
 }
 
 func (m *Matrix) Construct() {
@@ -46,7 +49,7 @@ func (m *Matrix) SetBrightness(b int) {
 	m.dirty = true
 }
 
-func (m *Matrix) Plot(col, row, v int) {
+func (m *MatrixBuffer) Plot(col, row, v int) {
 	col = 7 - col&7
 	row = row & 7
 
@@ -59,7 +62,7 @@ func (m *Matrix) Plot(col, row, v int) {
 	m.dirty = true
 }
 
-func (m *Matrix) SetPattern(values []string) {
+func (m *MatrixBuffer) SetPattern(values []string) {
 	for y := range values {
 		for x, r := range values[y] {
 			if r != ' ' {
@@ -71,7 +74,7 @@ func (m *Matrix) SetPattern(values []string) {
 	}
 }
 
-func (m *Matrix) DrawBarGraph(values []int, min, max int) {
+func (m *MatrixBuffer) DrawBarGraph(values []int, min, max int) {
 	m.Clear()
 
 	bars := MinInt(8, len(values))
@@ -84,11 +87,11 @@ func (m *Matrix) DrawBarGraph(values []int, min, max int) {
 	}
 }
 
-func (m *Matrix) Clear() {
+func (m *MatrixBuffer) Clear() {
 	m.buffer = [8]byte{}
 }
 
-func (m *Matrix) GetRow(row int) byte {
+func (m *MatrixBuffer) GetRow(row int) byte {
 	var v byte
 	for i := range m.buffer {
 		v <<= 1
@@ -97,22 +100,22 @@ func (m *Matrix) GetRow(row int) byte {
 	return v
 }
 
-func (m *Matrix) SetRow(row int, v byte) {
+func (m *MatrixBuffer) SetRow(row int, v byte) {
 	for i := range m.buffer {
 		//mask := 1 << byte(7-row)
 		v |= (m.buffer[i] >> byte(7-row)) & 1
 	}
 }
 
-func (m *Matrix) GetCol(col int) byte {
+func (m *MatrixBuffer) GetCol(col int) byte {
 	return m.buffer[col]
 }
 
-func (m *Matrix) SetCol(col int, v byte) {
+func (m *MatrixBuffer) SetCol(col int, v byte) {
 	m.buffer[col] = v
 }
 
-func (m *Matrix) Scroll(dir Direction, fill byte) {
+func (m *MatrixBuffer) Scroll(dir Direction, fill byte) {
 	if dir&DirLeft != 0 {
 		m.ScrollLeft(fill)
 	}
@@ -127,33 +130,33 @@ func (m *Matrix) Scroll(dir Direction, fill byte) {
 	}
 }
 
-func (m *Matrix) ScrollRight(fill byte) {
+func (m *MatrixBuffer) ScrollRight(fill byte) {
 	copy(m.buffer[:], m.buffer[1:])
 	m.buffer[7] = fill
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollLeft(fill byte) {
+func (m *MatrixBuffer) ScrollLeft(fill byte) {
 	copy(m.buffer[1:], m.buffer[:])
 	m.buffer[0] = fill
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollDown(fill byte) {
+func (m *MatrixBuffer) ScrollDown(fill byte) {
 	for i := range m.buffer {
 		m.buffer[i] = (m.buffer[i] << 1) | (fill>>byte(7-i))&1
 	}
 	m.dirty = true
 }
 
-func (m *Matrix) ScrollUp(fill byte) {
+func (m *MatrixBuffer) ScrollUp(fill byte) {
 	for i := range m.buffer {
 		m.buffer[i] = (m.buffer[i] >> 1) | ((byte(fill)>>byte(7-i))&1)<<7
 	}
 	m.dirty = true
 }
 
-func (m *Matrix) Roll(dir Direction) {
+func (m *MatrixBuffer) Roll(dir Direction) {
 	if dir&DirLeft != 0 {
 		m.RollLeft()
 	}
@@ -168,22 +171,22 @@ func (m *Matrix) Roll(dir Direction) {
 	}
 }
 
-func (m *Matrix) RollUp() {
+func (m *MatrixBuffer) RollUp() {
 	row := m.GetRow(7)
 	m.ScrollUp(row)
 }
 
-func (m *Matrix) RollDown() {
+func (m *MatrixBuffer) RollDown() {
 	row := m.GetRow(0)
 	m.ScrollDown(row)
 }
 
-func (m *Matrix) RollLeft() {
+func (m *MatrixBuffer) RollLeft() {
 	col := m.GetCol(7)
 	m.ScrollLeft(col)
 }
 
-func (m *Matrix) RollRight() {
+func (m *MatrixBuffer) RollRight() {
 	col := m.GetCol(0)
 	m.ScrollRight(col)
 }
