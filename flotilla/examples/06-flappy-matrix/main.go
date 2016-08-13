@@ -41,10 +41,10 @@ func main() {
 	client.AquireModules(&modules)
 	modules.Matrix.SetBrightness(32)
 
-	gs := gameState{playerPos: 16 * 3}
+	gs := gameState{playerPos: 256 * 3}
 
 	client.OnTick(func(t time.Time) {
-		modules.Matrix.Plot(0, gs.playerPos/16, 0)
+		modules.Matrix.Plot(0, gs.playerPos/256, 0)
 
 		if gs.scrollPos&7 == 0 {
 			modules.Matrix.ScrollLeft(0)
@@ -54,14 +54,17 @@ func main() {
 		}
 		gs.scrollPos++
 
+		maxDelta := 32
+		gs.deltaPos = flotilla.Limit(gs.deltaPos, -maxDelta, maxDelta)
+
 		gs.playerPos += gs.deltaPos
-		gs.deltaPos++
-		modules.Matrix.Plot(0, gs.playerPos/16, gs.scrollPos&1)
+		gs.deltaPos += 12
+		modules.Matrix.Plot(0, gs.playerPos/256, gs.scrollPos&1)
 	})
 
 	modules.Touch.OnChange(func(button int, pressed bool) {
 		if pressed {
-			gs.deltaPos -= 8
+			gs.deltaPos -= 98
 		}
 	})
 
