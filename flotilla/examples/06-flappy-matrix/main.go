@@ -14,13 +14,9 @@ var modules struct {
 	flotilla.Number
 }
 
-func drawPipes(m *flotilla.Matrix) {
-	gap := rand.Intn(7)
-	for y := 0; y < gap; y++ {
-		m.Plot(7, y, 1)
-	}
-	for y := gap + 2; y < 8; y++ {
-		m.Plot(7, y, 1)
+func draw(m *flotilla.Matrix, h int) {
+	for y := 0; y < h; y++ {
+		m.Plot(7, 7-y, 1)
 	}
 }
 
@@ -30,6 +26,7 @@ type gameState struct {
 	scrollPos int
 	score     int
 	hiscore   int
+	currentH  int
 }
 
 func main() {
@@ -49,8 +46,10 @@ func main() {
 		if gs.scrollPos&7 == 0 {
 			modules.Matrix.ScrollLeft(0)
 			if gs.scrollPos&31 == 0 {
-				drawPipes(&modules.Matrix)
+				gs.currentH = rand.Intn(5)
 			}
+			modules.Matrix.Plot(7, 7, 1)
+			draw(&modules.Matrix, gs.currentH)
 		}
 		gs.scrollPos++
 
