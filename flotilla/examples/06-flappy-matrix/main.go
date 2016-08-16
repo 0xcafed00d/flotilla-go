@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -27,6 +28,17 @@ type gameState struct {
 	score     int
 	hiscore   int
 	currentH  int
+	heights   [8]int
+}
+
+func (gs *gameState) init(m *flotilla.Matrix) {
+	gs.playerPos = 256 * 3
+
+	for x := 0; x < 8; x++ {
+		m.Plot(x, 7, 1)
+		gs.heights[x] = 1
+	}
+
 }
 
 func main() {
@@ -38,26 +50,33 @@ func main() {
 	client.AquireModules(&modules)
 	modules.Matrix.SetBrightness(32)
 
-	gs := gameState{playerPos: 256 * 3}
+	gs := gameState{}
+	gs.init(&modules.Matrix)
 
 	client.OnTick(func(t time.Time) {
 		modules.Matrix.Plot(0, gs.playerPos/256, 0)
 
 		if gs.scrollPos&7 == 0 {
 			modules.Matrix.ScrollLeft(0)
+			copy(gs.heights[0:], gs.heights[1:])
 			if gs.scrollPos&31 == 0 {
-				gs.currentH = rand.Intn(5)
+				gs.currentH = rand.Intn(4) + 1
 			}
 			modules.Matrix.Plot(7, 7, 1)
+			gs.heights[7] = gs.currentH
 			draw(&modules.Matrix, gs.currentH)
+			fmt.Println(gs.heights)
 		}
 		gs.scrollPos++
 
-		maxDelta := 32
+		maxDelta := 64
 		gs.deltaPos = flotilla.Limit(gs.deltaPos, -maxDelta, maxDelta)
 
 		gs.playerPos += gs.deltaPos
 		gs.deltaPos += 12
+		if gs.playerPos > (7-gs.heights[0])*256 {
+			gs.playerPos = (7 - gs.heights[0]) * 256
+		}
 		modules.Matrix.Plot(0, gs.playerPos/256, gs.scrollPos&1)
 	})
 
